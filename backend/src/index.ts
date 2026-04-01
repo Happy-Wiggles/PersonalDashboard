@@ -11,7 +11,7 @@ import { createUserRouter } from "./routes/userRoutes.js";
 
 const REACT_APP_ORIGIN = "http://localhost:5173";
 
-const PORT: number = Number.parseInt(process.env.PORT as string);
+const PORT = Number.parseInt(process.env.PORT || "3000");
 const JWT_Secret = process.env.JWT_SECRET!; // The "!" tells TS that the variable exists and the value wont be null or undefined
 
 if (!JWT_Secret) {

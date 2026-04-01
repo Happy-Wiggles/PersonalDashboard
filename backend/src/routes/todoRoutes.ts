@@ -43,7 +43,7 @@ export const createTodoRouter = (db: Database) => {
   });
 
   // Route: Update a ToDoList
-  router.put("/:id", async (req, res) => {
+  router.put("/lists/:id", async (req, res) => {
     const { id } = req.params;
     const { title } = req.body;
 
@@ -61,6 +61,25 @@ export const createTodoRouter = (db: Database) => {
       res.json({ message: "ToDo_List updated successfully." });
     } catch (error) {
       res.status(500).json({ error: "Update failed." });
+    }
+  });
+
+  // Route: Delete a ToDoList
+  router.delete("/lists/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const result = await db.run("DELETE FROM todo_lists WHERE id = ?", [id]);
+
+      if (result.changes === 0) {
+        return res.status(404).json({ error: "todo_lists not found." });
+      }
+
+      res.json({
+        message: `ToDo list with ID ${id} and all ToDos have been deleted.`,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Deletion of todo_list failed." });
     }
   });
 
@@ -83,7 +102,7 @@ export const createTodoRouter = (db: Database) => {
   // Add a new ToDo to a ToDoList
   router.post("/lists/:listId/todos", async (req, res) => {
     const { listId } = req.params;
-    const { task, priority } = req.body; // priority kommt von deinem 1-5 System
+    const { task, priority } = req.body;
 
     try {
       const result = await db.run(
@@ -92,6 +111,7 @@ export const createTodoRouter = (db: Database) => {
       );
       res.status(201).json({
         id: result.lastID,
+        listId: Number(listId),
         task,
         priority: priority || 1,
         completed: false,
@@ -102,7 +122,7 @@ export const createTodoRouter = (db: Database) => {
   });
 
   // Mark a ToDo as done or change the priority
-  router.put("/todos/:todoId", async (req, res) => {
+  router.put("/items/:todoId", async (req, res) => {
     const { todoId } = req.params;
     const { completed, priority } = req.body;
 
@@ -119,7 +139,7 @@ export const createTodoRouter = (db: Database) => {
   });
 
   // Delete a todo
-  router.delete("/todos/:todoId", async (req, res) => {
+  router.delete("/items/:todoId", async (req, res) => {
     const { todoId } = req.params;
     await db.run("DELETE FROM todos WHERE id = ?", [todoId]);
     res.json({ message: "Task deleted" });

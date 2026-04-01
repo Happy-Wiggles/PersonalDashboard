@@ -79,7 +79,7 @@ export const createAuthRouter = (db: Database) => {
       // Generate JWT
       const token = jwt.sign(
         { userId: user.id, email: user.email },
-        JWT_Secret,
+        process.env.JWT_SECRET!, // The "!" tells TS that the variable exists and the value wont be null or undefined
         {
           expiresIn: "1h",
         },

@@ -1,3 +1,4 @@
 Most important commands for this project:
   - running it:
-      - npx ts-node src/index.ts
+      - npx ts-node src/index.ts => doesnt work anymore because it has problems with imports that have .js
+      - npx tsx src/index.ts => works (after install tsx)
