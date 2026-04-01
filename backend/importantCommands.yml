@@ -1,0 +1,3 @@
+Most important commands for this project:
+  - running it:
+      - npx ts-node src/index.ts

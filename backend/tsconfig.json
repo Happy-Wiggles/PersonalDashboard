@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "nodenext",
-    "moduleResolution": "nodenext", // Wichtig für nodenext
+    "moduleResolution": "nodenext",
     "outDir": "./dist",
     "rootDir": "./src",
 
@@ -14,7 +14,7 @@
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "esModuleInterop": true, // Erleichtert den Import von CommonJS-Paketen
+    "esModuleInterop": true,
 
     "sourceMap": true,
     "declaration": true,

@@ -1,18 +1,22 @@
+import "dotenv/config";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cors from "cors";
-import type { User } from "./types/User.ts";
+import { createTodoRouter } from "./routes/todoRoutes.js";
+import { createAuthRouter } from "./routes/authRoutes.js";
+import { createUserRouter } from "./routes/userRoutes.js";
 
-const PORT: number = 3000;
 const REACT_APP_ORIGIN = "http://localhost:5173";
-const SALT_ROUNDS = 10;
-const JWT_SECRET = "your_super_secret_key_123";
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+const PORT: number = Number.parseInt(process.env.PORT as string);
+const JWT_Secret = process.env.JWT_SECRET!; // The "!" tells TS that the variable exists and the value wont be null or undefined
+
+if (!JWT_Secret) {
+  throw new Error("FATAL ERROR: JWT_SECRET is not defined in .env file.");
+}
 
 const app = express();
 
@@ -37,7 +41,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 
   try {
     // Verify the token using our secret
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_Secret);
 
     // Add the decoded user data to the request object so routes can use it
     (req as any).user = decoded;
@@ -52,12 +56,21 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 let db: Database;
 
 (async () => {
-  db = await open({
-    filename: "./database.db",
-    driver: sqlite3.Database,
-  });
+  try {
+    db = await open({
+      filename: "./database.db",
+      driver: sqlite3.Database,
+    });
 
-  await db.exec(`
+    // Activate foreign_keys so that "ON DELETE CASCADE" actually works
+    await db.get("PRAGMA foreign_keys = ON");
+
+    // Check if user table exists if not, create it
+    const userTableExists = await db.get(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='users'",
+    );
+
+    await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
@@ -68,139 +81,83 @@ let db: Database;
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
-  console.log("Database initialized.");
+
+    if (!userTableExists) {
+      console.log(
+        "Database initialized: Table 'users' was created for the first time.",
+      );
+    }
+
+    // Check if todo_lists table exists if not, create it
+    const todoListsTableExists = await db.get(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='todo_lists'",
+    );
+
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS todo_lists (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          userId INTEGER,
+          title TEXT NOT NULL,
+          FOREIGN KEY (userId) REFERENCES users(id)
+        )
+    `);
+
+    if (!todoListsTableExists) {
+      console.log(
+        "Database initialized: Table 'todo_lists' was created for the first time.",
+      );
+    }
+
+    // Check if todo_lists table exists if not, create it
+    const todosTableExists = await db.get(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='todos'",
+    );
+
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS todos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          listId INTEGER,
+          task TEXT NOT NULL,
+          priority INTEGER DEFAULT 1,
+          completed BOOLEAN DEFAULT 0,
+          FOREIGN KEY (listId) REFERENCES todo_lists(id) ON DELETE CASCADE
+       )
+    `);
+
+    if (!todosTableExists) {
+      console.log(
+        "Database initialized: Table 'todos' was created for the first time.",
+      );
+    }
+
+    // Use route file authRoutes.ts at "/auth"
+    app.use("/auth", createAuthRouter(db));
+
+    // Use route file usersRoutes.ts at "/users"
+    app.use("/users", authenticateToken, createUserRouter(db));
+
+    // Use route file todoRoutes.ts at "/todos"
+    app.use("/todos", authenticateToken, createTodoRouter(db));
+
+    app.listen(PORT, () => {
+      console.log(`\nNode-Server running at http://localhost:${PORT}\n`);
+      startUptimeCounter();
+    });
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+    process.exit(1);
+  }
 })();
 
-// --- Authentication Routes ---
-
-// REGISTER: Validates input, hashes password, and saves user
-app.post("/auth/register", async (req: Request, res: Response) => {
-  const { username, email, password, name, surname } = req.body;
-
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: "Required fields are missing." });
-  }
-
-  if (!passwordRegex.test(password)) {
-    return res.status(400).json({
-      error:
-        "Password too weak. Requirements: 8+ chars, upper/lower, number, symbol.",
-    });
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-
-    await db.run(
-      "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
-      [username, email, hashedPassword, name, surname],
-    );
-    res.status(201).json({ message: "Registration successful." });
-  } catch (error: any) {
-    if (error.message.includes("UNIQUE constraint failed")) {
-      return res
-        .status(409)
-        .json({ error: "Username or Email already exists." });
-    }
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// LOGIN: Compares hashed password and returns a JWT
-app.post("/auth/login", async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required." });
-  }
-
-  try {
-    const user = await db.get<User>("SELECT * FROM users WHERE email = ?", [
-      email,
-    ]);
-
-    if (!user) {
-      return res.status(401).json({ error: "Invalid credentials." });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: "Invalid credentials." });
-    }
-
-    // Generate JWT
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({
-      message: "Login successful.",
-      token,
-      user: userWithoutPassword,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// --- User Management Routes ---
-
-app.get("/users", authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const users = await db.all<User[]>(
-      "SELECT id, username, name, surname, email, createdAt FROM users",
-    );
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "Could not fetch users." });
-  }
-});
-
-// UPDATE: Updates a user's username, name and surname by ID
-app.put(
-  "/users/:id",
-  authenticateToken,
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { username, name, surname } = req.body;
-
-    try {
-      const result = await db.run(
-        "UPDATE users SET username = ?, name = ?, surname = ? WHERE id = ?",
-        [username, name, surname, id],
-      );
-
-      if (result.changes === 0) {
-        return res
-          .status(404)
-          .json({ error: "User not found or no changes made." });
-      }
-      res.json({ message: "User updated successfully." });
-    } catch (error) {
-      res.status(500).json({ error: "Update failed." });
-    }
-  },
-);
-
-// DELETE: Deletes a user by ID
-app.delete(
-  "/users/:id",
-  authenticateToken,
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    try {
-      const result = await db.run("DELETE FROM users WHERE id = ?", [id]);
-      if (result.changes === 0) {
-        return res.status(404).json({ error: "User not found." });
-      }
-      res.json({ message: `User with ID ${id} deleted.` });
-    } catch (error) {
-      res.status(500).json({ error: "Delete failed." });
-    }
-  },
-);
-
-app.listen(PORT, () =>
-  console.log(`\nNode-Server running at http://localhost:${PORT}\n`),
-);
+// --- Uptime Display ---
+function startUptimeCounter() {
+  const startTime = Date.now();
+  setInterval(() => {
+    const uptimeMs = Date.now() - startTime;
+    const hours = Math.floor(uptimeMs / 3600000);
+    const minutes = Math.floor((uptimeMs % 3600000) / 60000);
+    const seconds = Math.floor((uptimeMs % 60000) / 1000);
+    const timeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    process.stdout.write(`\r[Server Status] Running since: ${timeString}`);
+  }, 1000);
+}
