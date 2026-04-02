@@ -5,6 +5,7 @@ import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { createTodoRouter } from "./routes/todoRoutes.js";
 import { createAuthRouter } from "./routes/authRoutes.js";
 import { createUserRouter } from "./routes/userRoutes.js";
@@ -13,21 +14,26 @@ const REACT_APP_ORIGIN = "http://localhost:5173";
 
 const PORT = Number.parseInt(process.env.PORT || "3000");
 const JWT_Secret = process.env.JWT_SECRET!; // The "!" tells TS that the variable exists and the value wont be null or undefined
+const REFRESH_Secret = process.env.REFRESH_TOKEN_SECRET!;
 
-if (!JWT_Secret) {
-  throw new Error("FATAL ERROR: JWT_SECRET is not defined in .env file.");
+if (!JWT_Secret || !REFRESH_Secret) {
+  throw new Error(
+    "FATAL ERROR: JWT_SECRET or REFRESH_TOKEN_SECRET is not defined in .env file.",
+  );
 }
 
 const app = express();
 
 // --- Middleware ---
-app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: REACT_APP_ORIGIN,
     credentials: true,
   }),
 );
+
+app.use(express.json());
 
 // --- Middleware to protect routes ---
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
