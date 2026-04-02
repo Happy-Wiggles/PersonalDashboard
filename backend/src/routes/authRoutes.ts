@@ -91,9 +91,13 @@ export const createAuthRouter = (db: Database) => {
       );
 
       // Generate JWT refresh token (Long-Time: 7 days)
-      const refreshToken = jwt.sign({ userId: user.id }, REFRESH_Secret, {
-        expiresIn: "7d",
-      });
+      const refreshToken = jwt.sign(
+        { userId: user.id, email: user.email },
+        REFRESH_Secret,
+        {
+          expiresIn: "7d",
+        },
+      );
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true, // Means JS can't read the cookie (XSS (Cross-Site-Scripting) protection)
@@ -130,9 +134,13 @@ export const createAuthRouter = (db: Database) => {
       const decoded = jwt.verify(refreshToken, REFRESH_Secret) as any;
 
       // Generate a new token
-      const accessToken = jwt.sign({ userId: decoded.userId }, JWT_Secret, {
-        expiresIn: "15m",
-      });
+      const accessToken = jwt.sign(
+        { userId: decoded.userId, email: decoded.email },
+        JWT_Secret,
+        {
+          expiresIn: "15m",
+        },
+      );
 
       res.json({ token: accessToken });
     } catch (error) {
