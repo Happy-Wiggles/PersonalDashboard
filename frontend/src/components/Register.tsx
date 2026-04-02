@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { registerAsync, clearError } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
@@ -173,24 +173,36 @@ const Register = ({ setTitle }: RegisterProps) => {
             required
             disabled={loading}
           />
-          <div className="flex flex-row gap-2">
-            <button
-              type="submit"
-              className={`w-[50%] bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              disabled={loading || !isEmailValid || !isPasswordValid}
-            >
-              {loading ? "Loading..." : "Registieren"}
-            </button>
-            <button
-              type="button"
-              className="w-[50%] bg-blue-600 text-white py-2 rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50"
-              onClick={handleOnAlreadyRegisteredClick}
-              disabled={loading}
-            >
-              Ich bin bereits Registriert!
-            </button>
+          <div className="flex flex-col gap-4 w-full max-w-md">
+            <div className="flex flex-row gap-3">
+              <button
+                type="submit"
+                className={`flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50 transition cursor-pointer ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={loading || !isEmailValid || !isPasswordValid}
+              >
+                {loading ? "Loading..." : "Registrieren"}
+              </button>
+              <button
+                type="button"
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50 transition"
+                onClick={handleOnAlreadyRegisteredClick}
+                disabled={loading}
+              >
+                Bereits registriert?
+              </button>
+            </div>
+            <p className="text-[13px] text-gray-500 leading-tight text-center px-2">
+              Mit der Registrierung erklärst du dich mit unserer{" "}
+              <Link
+                to="/privacy"
+                className="text-blue-400 underline hover:text-gray-200"
+              >
+                Datenschutzerklärung
+              </Link>{" "}
+              einverstanden.
+            </p>
           </div>
         </form>
       </div>

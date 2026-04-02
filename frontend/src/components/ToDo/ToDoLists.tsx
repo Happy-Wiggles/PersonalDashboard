@@ -57,27 +57,27 @@ const ToDoLists = ({ setTitle }: ToDoProps) => {
   };
 
   return (
-    <div className="p-4 space-y-6">
-      {/* New ToDoList Form */}
-      <form
-        onSubmit={handleCreateList}
-        className="flex gap-2 bg-gray-800 p-4 rounded shadow"
-      >
-        <input
-          type="text"
-          value={newListTitle}
-          onChange={(e) => setNewListTitle(e.target.value)}
-          placeholder="Name der neuen Liste..."
-          className="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded cursor-pointer transition-colors"
+    <div className="p-6 pb-8 space-y-6 bg-gray-800">
+      <div className="flex flex-row gap-2 items-center">
+        <form
+          onSubmit={handleCreateList}
+          className="flex gap-2 bg-gray-800 p-4 rounded shadow-[0_0_5px_rgba(222,222,222,0.3)] w-full"
         >
-          Erstellen
-        </button>
-      </form>
-
+          <input
+            type="text"
+            value={newListTitle}
+            onChange={(e) => setNewListTitle(e.target.value)}
+            placeholder="Name der neuen Liste..."
+            className="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-[rgba(6,182,212,1)]"
+          />
+          <button
+            type="submit"
+            className="bg-[rgba(6,182,212,0.7)] hover:bg-[rgba(6,182,212,1)] text-white px-4 py-2 rounded cursor-pointer transition-colors"
+          >
+            Erstellen
+          </button>
+        </form>
+      </div>
       {/* Show the lists */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (

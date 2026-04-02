@@ -53,7 +53,7 @@ const ContactForm = () => {
           type="text"
           placeholder="Vorname"
           value={formData.name}
-          className="w-full p-2 rounded bg-gray-500 text-white border border-gray-600 focus:border-blue-500 outline-none"
+          className="w-full p-2 rounded bg-gray-500 text-white border-2 border-gray-600 focus:border-cyan-500 outline-none"
           onChange={(e) => handleChange("name", e.target.value)}
           required
         />
@@ -61,7 +61,7 @@ const ContactForm = () => {
           type="text"
           placeholder="Nachname"
           value={formData.surname}
-          className="w-full p-2 rounded bg-gray-500 text-white border border-gray-600 focus:border-blue-500 outline-none"
+          className="w-full p-2 rounded bg-gray-500 text-white border-2 border-gray-600 focus:border-cyan-500 outline-none"
           onChange={(e) => handleChange("surname", e.target.value)}
           required
         />
@@ -74,7 +74,7 @@ const ContactForm = () => {
           type="email"
           placeholder="E-Mail"
           value={formData.email}
-          className={`w-full p-2 rounded bg-gray-500 text-white border-2 outline-none transition-colors ${getBorderClass("email", isEmailValid)}`}
+          className={`w-full p-2 rounded bg-gray-500 text-white border-2 focus:border-cyan-500 outline-none transition-colors ${getBorderClass("email", isEmailValid)}`}
           onChange={(e) => handleChange("email", e.target.value)}
           required
         />
@@ -88,7 +88,7 @@ const ContactForm = () => {
           type="text"
           placeholder="Telefonnummer"
           value={formData.tel}
-          className={`w-full p-2 rounded bg-gray-500 text-white border-2 outline-none transition-colors ${getBorderClass("tel", isTelValid)}`}
+          className={`w-full p-2 rounded bg-gray-500 text-white border-2 focus:border-cyan-500 outline-none transition-colors ${getBorderClass("tel", isTelValid)}`}
           onChange={(e) => handleChange("tel", e.target.value)}
           required
         />
@@ -97,7 +97,7 @@ const ContactForm = () => {
           type="text"
           placeholder="LinkedIn-Profil"
           value={formData.linkedInProfile}
-          className="w-full p-2 rounded bg-gray-500 text-white border border-gray-600 focus:border-blue-500 outline-none"
+          className="w-full p-2 rounded bg-gray-500 text-white border-2 border-gray-600 focus:border-cyan-500 outline-none"
           onChange={(e) => handleChange("linkedInProfile", e.target.value)}
         />
 

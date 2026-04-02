@@ -62,7 +62,7 @@ const Login = ({ setTitle }: LoginProps) => {
 
       const timer = setTimeout(() => {
         navigate("/dashboard");
-      }, 3000);
+      }, 1200);
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, navigate]);
@@ -98,7 +98,7 @@ const Login = ({ setTitle }: LoginProps) => {
     <div className="bg-gray-700 p-4 m-2 rounded flex flex-row self-center">
       <div>
         {isAuthenticated && (
-          <div className="bg-green-600 rounded">
+          <div className="bg-green-600 rounded py-2 m-1">
             <p className="text-gray-200">Login erfolgreich!</p>
           </div>
         )}
