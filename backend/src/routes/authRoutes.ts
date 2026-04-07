@@ -40,11 +40,30 @@ export const createAuthRouter = (db: Database) => {
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
       await db.run(
-        "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
-        [username, email, hashedPassword, name, surname],
+        "INSERT INTO users (username, email, password, name, surname, role) VALUES (?, ?, ?, ?, ?, ?)",
+        [username, email, hashedPassword, name, surname, "user"],
       );
 
-      res.status(201).json({ message: "Registration successful." });
+      const newUser = await db.get<User>(
+        "SELECT id, username, name, surname, email, createdAt, role FROM users WHERE email = ?",
+        [email],
+      );
+
+      const token = jwt.sign(
+        { userId: newUser?.id, role: newUser?.role, email: newUser?.email },
+        JWT_Secret,
+        { expiresIn: "24h" },
+      );
+
+      if (!token) {
+        return res.status(500).json({ error: "Token generation failed." });
+      }
+
+      res.status(201).json({
+        message: "Registration successful.",
+        token: token,
+        user: newUser,
+      });
     } catch (error: any) {
       if (error.message.includes("UNIQUE constraint failed")) {
         return res
@@ -83,7 +102,7 @@ export const createAuthRouter = (db: Database) => {
 
       // Generate JWT access token (Short-Time: 15min)
       const accessToken = jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, role: user.role, email: user.email },
         JWT_Secret,
         {
           expiresIn: "15min",
@@ -92,7 +111,7 @@ export const createAuthRouter = (db: Database) => {
 
       // Generate JWT refresh token (Long-Time: 7 days)
       const refreshToken = jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, role: user.role, email: user.email },
         REFRESH_Secret,
         {
           expiresIn: "7d",
@@ -135,7 +154,7 @@ export const createAuthRouter = (db: Database) => {
 
       // Generate a new token
       const accessToken = jwt.sign(
-        { userId: decoded.userId, email: decoded.email },
+        { userId: decoded.userId, role: decoded.role, email: decoded.email },
         JWT_Secret,
         {
           expiresIn: "15m",

@@ -1,15 +1,14 @@
 import express from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { Database } from "sqlite";
 import type { User } from "../types/User.ts";
+import { authorizeAdmin } from "../index.js";
 
 export const createUserRouter = (db: Database) => {
   const router = express.Router();
 
   // GET: Returns a list of all users
-  router.get("/", async (req, res) => {
-    // Path is "/" because in index.ts "/users" will be before that
+  router.get("/", authorizeAdmin, async (req, res) => {
+    // Path is "/" because in index.ts "/users" will be placed before that
     try {
       const users = await db.all<User[]>(
         "SELECT id, username, name, surname, email, createdAt FROM users",
@@ -18,6 +17,21 @@ export const createUserRouter = (db: Database) => {
     } catch (error) {
       res.status(500).json({ error: "Could not fetch users." });
     }
+  });
+
+  // GET: User by ID (the id comes from the JWT token in this case)
+  router.get("/me", async (req, res) => {
+    const userId = (req as any).user.userId;
+    const user = await db.get<User>(
+      "SELECT id, username, name, surname, email, createdAt FROM users WHERE id = ?",
+      [userId],
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.status(200).json(user);
   });
 
   // UPDATE: Updates a user's username, name and surname by ID
@@ -36,7 +50,13 @@ export const createUserRouter = (db: Database) => {
           .status(404)
           .json({ error: "User not found or no changes made." });
       }
-      res.json({ message: "User updated successfully." });
+
+      const updatedUser = await db.get<User>(
+        "SELECT id, username, name, surname, email, createdAt FROM users WHERE id = ?",
+        [id],
+      );
+
+      res.status(200).json(updatedUser);
     } catch (error) {
       res.status(500).json({ error: "Update failed." });
     }

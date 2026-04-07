@@ -58,6 +58,23 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+export const authorizeAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  // req.user has been filled before by authenticateToken()
+  const user = (req as any).user;
+
+  if (!user || user.role !== "admin") {
+    return res.status(403).json({
+      error: "Access denied. Admin privileges required.",
+    });
+  }
+
+  next(); // Proceed if the user is admin
+};
+
 // --- Database Setup ---
 let db: Database;
 
@@ -84,6 +101,7 @@ let db: Database;
             surname TEXT,
             email TEXT UNIQUE,
             password TEXT,
+            role TEXT CHECK(role IN ('user', 'admin')) NOT NULL DEFAULT 'user',
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
@@ -140,7 +158,7 @@ let db: Database;
     app.use("/auth", createAuthRouter(db));
 
     // Use route file usersRoutes.ts at "/users"
-    app.use("/users", authenticateToken, createUserRouter(db));
+    app.use("/users", authenticateToken, authorizeAdmin, createUserRouter(db));
 
     // Use route file todoRoutes.ts at "/todos"
     app.use("/todos", authenticateToken, createTodoRouter(db));
