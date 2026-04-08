@@ -112,18 +112,24 @@ class APIClient {
   }
 
   // --- USERS ---
-  async getUsers(): Promise<User[]> {
+  async getUsersAsync(): Promise<User[]> {
     const response = await this.client.get<User[]>("/users");
     return response.data;
   }
 
+  // Partial<Omit<User, "id" | "email" | "createdAt">> means that everything in User can be updated, except the listed properties (id, email and createdAt)
   async updateUser(
-    id: number,
+    id: string,
     data: Partial<Omit<User, "id" | "email" | "createdAt">>,
-  ): Promise<{ message: string }> {
-    const response = await this.client.put<{ message: string }>(
+  ): Promise<User> {
+    const response = await this.client.put<User>(`/users/${id}`, data);
+
+    return response.data;
+  }
+
+  async deleteUser(id: string): Promise<{ message: string }> {
+    const response = await this.client.delete<{ message: string }>(
       `/users/${id}`,
-      data,
     );
     return response.data;
   }

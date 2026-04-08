@@ -1,82 +1,117 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { User } from "../../types/User.ts";
+import { apiClient } from "../../services/BackendApiService";
+import { logout } from "../auth/AuthSlice"; // Import logout to trigger it after deletion
 
-// UserState interface
 interface UserState {
-  list: User[];
+  loggedInUser: User | null;
+  allUsers: User[];
   loading: boolean;
+  error: string | null;
 }
 
-/* Old Test Users:
-
-    {
-      id: "1",
-      name: "Laura",
-      surname: "Hoffmann",
-      username: "lhoffmann",
-      email: "laura.hoffmann@gmail.com",
-      password: "sicher123",
-      createdAt: "2025-01-08",
-    },
-    {
-      id: "2",
-      name: "Markus",
-      surname: "Berger",
-      username: "mberger92",
-      email: "m.berger@outlook.com",
-      password: "sicher456",
-      createdAt: "2025-02-14",
-    },
-    {
-      id: "3",
-      name: "Sofia",
-      surname: "Neumann",
-      username: "sofia_n",
-      email: "sofia.neumann@gmail.com",
-      password: "sicher789",
-      createdAt: "2025-03-22",
-    },
-    {
-      id: "4",
-      name: "Jonas",
-      surname: "Krause",
-      username: "jonaskrause",
-      email: "jonas.krause@yahoo.com",
-      password: "sicher321",
-      createdAt: "2025-05-03",
-    },
-    {
-      id: "5",
-      name: "Anna",
-      surname: "Weber",
-      username: "annaweber",
-      email: "a.weber@outlook.com",
-      password: "sicher654",
-      createdAt: "2025-07-19",
-    },
-  
- */
-
-// Initial UserState (object)
 const initialState: UserState = {
-  list: [],
+  loggedInUser: null,
+  allUsers: [],
   loading: false,
+  error: null,
 };
 
-// Redux user slice
+export const fetchUsersAsync = createAsyncThunk(
+  "users/fetchAll",
+  async (_, { rejectWithValue }) => {
+    try {
+      const users = await apiClient.getUsersAsync();
+      return users;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message || "Failed to fetch users");
+      }
+    }
+  },
+);
+
+// AsyncThunk: Update User
+export const updateUserAsync = createAsyncThunk(
+  "user/update",
+  async (user: User, { rejectWithValue }) => {
+    try {
+      const updatedUser = await apiClient.updateUser(user.id, user);
+
+      // Update LocalStorage with the returned user
+      localStorage.setItem("authUser", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message || "Update failed");
+      }
+    }
+  },
+);
+
+// AsyncThunk: Delete User
+export const deleteUserAsync = createAsyncThunk(
+  "user/delete",
+  async (id: string, { rejectWithValue, dispatch }) => {
+    try {
+      await apiClient.deleteUser(id);
+
+      // If user deletes themselves, trigger logout to clear auth state
+      if (id === JSON.parse(localStorage.getItem("authUser") || "{}").id) {
+        dispatch(logout());
+      }
+
+      return id;
+    } catch (error: unknown) {
+      if (error instanceof Error)
+        return rejectWithValue(error.message || "Deletion failed");
+    }
+  },
+);
+
 const userSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    addUser: (state, action: PayloadAction<User>) => {
-      state.list.push(action.payload);
+    clearError: (state) => {
+      state.error = null;
     },
-    removeUser: (state, action: PayloadAction<string>) => {
-      state.list = state.list.filter((user) => user.id !== action.payload);
-    },
+  },
+  extraReducers: (builder) => {
+    // Update User Lifecycle
+    builder
+      .addCase(updateUserAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.loggedInUser = action.payload as User;
+      })
+      .addCase(updateUserAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Delete User Lifecycle
+    builder
+      .addCase(deleteUserAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUserAsync.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+        state.loggedInUser = null;
+      })
+      .addCase(deleteUserAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { addUser, removeUser } = userSlice.actions;
+export const { clearError } = userSlice.actions;
 export default userSlice.reducer;

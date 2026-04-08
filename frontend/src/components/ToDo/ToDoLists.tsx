@@ -14,8 +14,8 @@ const ToDoLists = ({ setTitle }: ToDoProps) => {
   const displayName = user?.name || "Guest";
 
   const [lists, setLists] = useState<ToDoListItem[]>([]);
-  const [newListTitle, setNewListTitle] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [newListTitle, setNewListTitle] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setTitle(`${displayName}'s ToDo-Listen`);

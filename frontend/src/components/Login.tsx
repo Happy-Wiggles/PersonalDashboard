@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAsync, clearError } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
+import confetti from "canvas-confetti";
 
 interface FormData {
   email: string;
@@ -15,7 +16,7 @@ interface LoginProps {
 
 const Login = ({ setTitle }: LoginProps) => {
   useEffect(() => setTitle("Login"), [setTitle]);
-  const [showLoginError, setShowLoginError] = useState(false);
+  const [showLoginError, setShowLoginError] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -71,8 +72,23 @@ const Login = ({ setTitle }: LoginProps) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
+
+    // Calculate the center of the button
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2 - 110) / window.innerWidth;
+    const y = (rect.top + rect.height / 2 + 60) / window.innerHeight;
+
+    const dirMin = -0.5;
+    const dirMax = 0.5;
+
+    const randDirection = getRandomInt(dirMin, dirMax);
+
+    const angleMin = 65;
+    const angleMax = 115;
+
+    const randAngle = getRandomInt(angleMin, angleMax);
 
     // Call async login action
     // This dispatches loginAsync thunk which handles API communication
@@ -87,7 +103,27 @@ const Login = ({ setTitle }: LoginProps) => {
     if (result.type === loginAsync.fulfilled.type) {
       // Success - user will be redirected via useEffect
       console.log("Login successful!\n\nResponse: ", result.payload);
+
+      confetti({
+        particleCount: 250,
+        spread: 360,
+        origin: { x, y },
+        zIndex: 1000,
+        disableForReducedMotion: true,
+        startVelocity: 20,
+        shapes: ["circle"],
+        flat: true,
+        drift: randDirection,
+        angle: randAngle,
+        gravity: 0,
+        decay: 1.005,
+        colors: ["#25fa5e", "#a3ffbc", "#00ff0d"],
+      });
     }
+  };
+
+  const getRandomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
   const handleOnRegisterClick = () => {
@@ -97,11 +133,6 @@ const Login = ({ setTitle }: LoginProps) => {
   return (
     <div className="bg-gray-700 p-4 m-2 rounded flex flex-row self-center">
       <div>
-        {isAuthenticated && (
-          <div className="bg-green-600 rounded py-2 m-1">
-            <p className="text-gray-200">Login erfolgreich!</p>
-          </div>
-        )}
         <p className="text-2xl text-white pb-4 text-left">
           Bitte loggen Sie sich ein:{" "}
         </p>

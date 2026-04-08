@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 
 const DefaultFunNavBackButton = () => {
   const navigate = useNavigate();
-  const [isFading, setIsFading] = useState(false);
+  const [isFading, setIsFading] = useState<boolean>(false);
 
   const handleBackButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -57,15 +57,11 @@ const DefaultFunNavBackButton = () => {
     <div>
       <button
         onClick={handleBackButtonClick}
-        className={`
-      /* Deine Basis-Styles */
-      p-2 px-4 rounded-lg flex items-center justify-center transition-all duration-2000 ease-out cursor-pointer
-      
-      /* Bedingte Farbe: Wenn nicht fadet -> Cyan, wenn fadet -> Hintergrundfarbe */
+        className={`p-2 px-4 rounded-lg flex items-center justify-center transition-all duration-2000 ease-out cursor-pointer
       ${
         isFading
           ? "bg-gray-800 border-transparent shadow-none text-transparent"
-          : "bg-cyan-800 text-gray-300 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+          : "bg-cyan-600 text-gray-200 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
       }
     `}
       >

@@ -1,3 +1,5 @@
+import { MOCK_WEATHER_DATA } from "./weatherMock";
+
 interface CurrentPosition {
   longitude: number;
   latitude: number;
@@ -13,26 +15,41 @@ class WeatherService {
   }
 
   public fetchWeather = async () => {
-    this.Position = await this.getCoordinates();
+    try {
+      this.Position = await this.getCoordinates();
 
-    const params = new URLSearchParams({
-      latitude: this.Position.latitude.toString(),
-      longitude: this.Position.longitude.toString(),
-      current_weather: "true",
-      daily:
-        "weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max,sunrise,sunset,uv_index_max,precipitation_probability_max",
-      timezone: this.TimeZone,
-    });
+      const params = new URLSearchParams({
+        latitude: this.Position.latitude.toString(),
+        longitude: this.Position.longitude.toString(),
+        current_weather: "true",
+        daily:
+          "weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max,sunrise,sunset,uv_index_max,precipitation_probability_max",
+        timezone: this.TimeZone,
+      });
 
-    const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
+      const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
 
-    const response = await fetch(url);
+      const response = await fetch(url);
 
-    if (!response.ok)
-      throw new Error("Wetter-Daten konnten nicht geladen werden");
+      if (!response.ok)
+        throw new Error(
+          "Weather data could not be loaded from the source (open-meteo.com)!",
+        );
 
-    const data = await response.json();
-    return data;
+      const data = await response.json();
+      return { data, isMock: false };
+    } catch (error) {
+      console.error("Weather API Error, using mock data:", error);
+
+      return {
+        data: {
+          ...MOCK_WEATHER_DATA,
+          latitude: this.Position.latitude,
+          longitude: this.Position.longitude,
+        },
+        isMock: true,
+      };
+    }
   };
 
   public getWeatherIcon = (code: number) => {

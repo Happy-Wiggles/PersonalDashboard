@@ -33,10 +33,9 @@ const Weather = () => {
   const [weatherData, setWeatherData] = useState<OpenMeteoResponse | null>(
     null,
   );
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isMock, setIsMock] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
-
   const [selectedWeather, setSelectedWeather] = useState<WeatherDataCollection>(
     {
       label: "Aktuell",
@@ -51,15 +50,19 @@ const Weather = () => {
         setLoading(true);
         const result = await weatherService.fetchWeather();
 
-        setWeatherData(result);
+        if (result && result.data) {
+          setWeatherData(result.data);
+          setIsMock(result.isMock);
 
-        setSelectedWeather({
-          degrees: `${result.current_weather.temperature}°C`,
-          windspeed: `${result.current_weather.windspeed} km/h`,
-          label: "Aktuell",
-        });
-
-        console.log("Weather has been loaded successfully!");
+          setSelectedWeather({
+            degrees: `${result.data.current_weather.temperature}°C`,
+            windspeed: `${result.data.current_weather.windspeed} km/h`,
+            label: "Aktuell",
+          });
+          console.log("Weather has been loaded successfully!");
+        } else {
+          throw new Error("Result from the api service had an error");
+        }
       } catch (error) {
         console.error("Weather could not be loaded...", error);
       } finally {
@@ -97,8 +100,23 @@ const Weather = () => {
 
   return (
     <div>
-      {/* Weather Section */}
-      <div className="mt-4 p-6 bg-gray-900 rounded-2xl shadow-inner">
+      <div className="rounded-2xl shadow-inner">
+        {/* If the weather api could not be reached mockdata is being used and this warning will be shown */}
+        {isMock && (
+          <div className="bg-amber-500/10 border border-amber-500/50 p-3 rounded-lg mb-4 flex items-center gap-3">
+            <span className="text-amber-500 text-xl">⚠️</span>
+            <div>
+              <p className="text-amber-500 text-xs font-bold uppercase">
+                Offline-Modus / Demo-Daten
+              </p>
+              <p className="text-gray-400 text-xs">
+                Die Wetter-API ist aktuell nicht erreichbar. Es werden
+                Beispieldaten angezeigt.
+              </p>
+            </div>
+          </div>
+        )}
+
         <h3 className="text-cyan-400 font-bold mb-2">
           Wettervorhersagen für "{weatherData?.timezone || "Niemandsland"}"
         </h3>
@@ -121,7 +139,10 @@ const Weather = () => {
                   `${weatherData.current_weather.windspeed} km/h`}
               </span>
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700/50">
+            <div
+              id="specificInfos"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700/50"
+            >
               {/* Rain possibility */}
               <div className="flex flex-col">
                 {/* <span className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">
@@ -129,7 +150,8 @@ const Weather = () => {
                   </span> */}
                 <img
                   src="https://img.icons8.com/?size=100&id=15360&format=png&color=000000"
-                  alt="Wetterzustand"
+                  alt="Regenwahrscheinlichkeit"
+                  title="Regenwahrscheinlichkeit"
                   className="w-12 h-12 md:w-20 md:h-20 object-contain select-none transition-transform duration-300 hover:scale-120 drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
                   loading="lazy"
                 ></img>
@@ -143,7 +165,8 @@ const Weather = () => {
               <div className="flex flex-col">
                 <img
                   src="https://img.icons8.com/?size=100&id=tsTwjNsafMGS&format=png&color=000000"
-                  alt="Wetterzustand"
+                  alt="UV-Index"
+                  title="UV-Index"
                   className="w-12 h-12 md:w-20 md:h-20 object-contain select-none transition-transform duration-300 hover:scale-120 drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
                   loading="lazy"
                 ></img>
@@ -166,7 +189,8 @@ const Weather = () => {
               <div className="flex flex-col">
                 <img
                   src="https://img.icons8.com/?size=100&id=s51JxxE1J6OO&format=png&color=000000"
-                  alt="Wetterzustand"
+                  alt="Sonnenaufgang"
+                  title="Sonnenaufgang"
                   className="w-12 h-12 md:w-20 md:h-20 object-contain select-none transition-transform duration-300 hover:scale-120 drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
                   loading="lazy"
                 ></img>
@@ -187,7 +211,8 @@ const Weather = () => {
               <div className="flex flex-col">
                 <img
                   src="https://img.icons8.com/?size=100&id=L5pcGEmaO18S&format=png&color=000000"
-                  alt="Wetterzustand"
+                  alt="Sonnenuntergang"
+                  title="Sonnenuntergang"
                   className="w-12 h-12 md:w-20 md:h-20 object-contain select-none transition-transform duration-300 hover:scale-120 drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
                   loading="lazy"
                 ></img>

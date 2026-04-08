@@ -6,20 +6,19 @@ import { logout } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
 import DefaultFunNavBackButton from "./DefaultFunNavBackButton";
 
-const navItems = [
-  { name: "Startseite", path: "/dashboard" },
-  { name: "ToDo-Listen", path: "/todolists" },
-  { name: "Über Mich", path: "/about" },
-  { name: "Kontakt", path: "/contact" },
-];
-
 interface NavBarProps {
   pageTitle: string;
 }
 
 const NavBar = ({ pageTitle }: NavBarProps) => {
-  const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [visible, setVisible] = useState<boolean>(true);
+  const [lastScrollY, setLastScrollY] = useState<number>(0);
+  const [navItems, setNavItems] = useState([
+    { name: "Startseite", path: "/dashboard" },
+    { name: "ToDo-Listen", path: "/todolists" },
+    { name: "Über Mich", path: "/about" },
+    { name: "Kontakt", path: "/contact" },
+  ]);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -27,6 +26,35 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth,
   );
+
+  useEffect(() => {
+    const manageNavItems = () => {
+      if (!isAuthenticated) {
+        setNavItems([
+          { name: "Startseite", path: "/dashboard" },
+          { name: "Über Mich", path: "/about" },
+          { name: "Kontakt", path: "/contact" },
+        ]);
+      } else if (isAuthenticated && user?.role === "admin") {
+        setNavItems([
+          { name: "Startseite", path: "/dashboard" },
+          { name: "ToDo-Listen", path: "/todolists" },
+          { name: "Über Mich", path: "/about" },
+          { name: "Kontakt", path: "/contact" },
+          { name: "Benutzerverwaltung", path: "/useroverview" },
+        ]);
+      } else {
+        setNavItems([
+          { name: "Startseite", path: "/dashboard" },
+          { name: "ToDo-Listen", path: "/todolists" },
+          { name: "Über Mich", path: "/about" },
+          { name: "Kontakt", path: "/contact" },
+        ]);
+      }
+    };
+
+    manageNavItems();
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     const handleScroll = () => {

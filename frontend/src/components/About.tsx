@@ -6,7 +6,7 @@ interface AboutProps {
 
 const About = ({ setTitle }: AboutProps) => {
   useEffect(() => setTitle("Wer bin ich?"), [setTitle]);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const descriptionText =
     "Meine Karriere begonn ich mit einem Studium als Informatik Bachelor, welches ich jedoch leider nicht vollständig beenden konnte. Das hat mich jedoch nicht aufgehalten diesen Weg weiter zu beschreiten! " +

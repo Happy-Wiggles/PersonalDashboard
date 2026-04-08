@@ -19,6 +19,7 @@ import Contact from "./components/Contact";
 import Profile from "./components/Profile";
 import ToDoLists from "./components/ToDo/ToDoLists";
 import ToDoDetails from "./components/ToDo/ToDoDetails";
+import UserOverview from "./components/UserOverview";
 import Privacy from "./components/Privacy";
 
 const LoginPage = ({ setTitle }: { setTitle: (title: string) => void }) => (
@@ -42,6 +43,12 @@ const ToDoDetailsPage = ({
 }: {
   setTitle: (title: string) => void;
 }) => <ToDoDetails setTitle={setTitle} />;
+
+const UserOverviewPage = ({
+  setTitle,
+}: {
+  setTitle: (title: string) => void;
+}) => <UserOverview setTitle={setTitle}></UserOverview>;
 
 const ProfilePage = ({ setTitle }: { setTitle: (title: string) => void }) => (
   <Profile setTitle={setTitle} />
@@ -81,7 +88,11 @@ function AppContent() {
         />
         <Route
           path="/userprofile"
-          element={<ProfilePage setTitle={setTitle} />}
+          element={
+            <ProtectedRoute>
+              <ProfilePage setTitle={setTitle} />
+            </ProtectedRoute>
+          }
         />
         {/* Protect the dashboard route - only authenticated users can access */}
         <Route
@@ -102,8 +113,20 @@ function AppContent() {
         />
         <Route
           path="/todo/:listId"
-          element={<ToDoDetailsPage setTitle={setTitle}></ToDoDetailsPage>}
+          element={
+            <ProtectedRoute>
+              <ToDoDetailsPage setTitle={setTitle}></ToDoDetailsPage>
+            </ProtectedRoute>
+          }
         />
+        <Route
+          path="/useroverview"
+          element={
+            <ProtectedRoute>
+              <UserOverviewPage setTitle={setTitle}></UserOverviewPage>
+            </ProtectedRoute>
+          }
+        ></Route>
         <Route path="/about" element={<AboutPage setTitle={setTitle} />} />
         <Route path="/contact" element={<ContactPage setTitle={setTitle} />} />
         <Route path="/privacy" element={<PrivacyPage setTitle={setTitle} />} />

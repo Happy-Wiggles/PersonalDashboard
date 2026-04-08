@@ -1,0 +1,254 @@
+{
+  "quote_compilation": [
+    {
+      "id": 1,
+      "author": "Marie Curie",
+      "quote": "Man braucht im Leben nichts zu fürchten, man muss nur alles verstehen. Jetzt ist es an der Zeit, mehr zu verstehen, damit wir weniger fürchten."
+    },
+    {
+      "id": 2,
+      "author": "Albert Einstein",
+      "quote": "Phantasie ist wichtiger als Wissen, denn Wissen ist begrenzt."
+    },
+    {
+      "id": 3,
+      "author": "Stephen Hawking",
+      "quote": "Schauen Sie zu den Sternen empor und nicht hinab auf Ihre Füße. Versuchen Sie, dem, was Sie sehen, einen Sinn zu geben."
+    },
+    {
+      "id": 4,
+      "author": "Isaac Newton",
+      "quote": "Was wir wissen, ist ein Tropfen; was wir nicht wissen, ist ein Ozean."
+    },
+    {
+      "id": 5,
+      "author": "Carl Sagan",
+      "quote": "Irgendwo wartet etwas Unglaubliches darauf, bekannt zu werden."
+    },
+    {
+      "id": 6,
+      "author": "Ada Lovelace",
+      "quote": "Die intellektuelle Welt ist ein unermesslicher Ozean, in dem wir gerade erst anfangen, unsere Zehen zu benetzen."
+    },
+    {
+      "id": 7,
+      "author": "Richard Feynman",
+      "quote": "Ich würde lieber Fragen haben, die nicht beantwortet werden können, als Antworten, die nicht hinterfragt werden dürfen."
+    },
+    {
+      "id": 8,
+      "author": "Charles Darwin",
+      "quote": "Es ist nicht die stärkste Spezies, die überlebt, auch nicht die intelligenteste, sondern diejenige, die am ehesten bereit ist, sich zu verändern."
+    },
+    {
+      "id": 9,
+      "author": "Rosalind Franklin",
+      "quote": "Wissenschaft und das tägliche Leben können und sollten nicht getrennt werden."
+    },
+    {
+      "id": 10,
+      "author": "Nikola Tesla",
+      "quote": "Die Gegenwart gehört ihnen; die Zukunft, für die ich wirklich gearbeitet habe, gehört mir."
+    },
+    {
+      "id": 11,
+      "author": "Louis Pasteur",
+      "quote": "Das Glück bevorzugt den vorbereiteten Geist."
+    },
+    {
+      "id": 12,
+      "author": "Jane Goodall",
+      "quote": "Jeder Einzelne zählt. Jeder Einzelne hat eine Rolle zu spielen. Jeder Einzelne macht einen Unterschied."
+    },
+    {
+      "id": 13,
+      "author": "Thomas Alva Edison",
+      "quote": "Ich bin nicht gescheitert. Ich habe nur 10.000 Wege gefunden, die nicht funktionieren."
+    },
+    {
+      "id": 14,
+      "author": "Max Planck",
+      "quote": "Wenn man die Art und Weise ändert, wie man die Dinge betrachtet, ändern sich die Dinge, die man betrachtet."
+    },
+    {
+      "id": 15,
+      "author": "Katherine Johnson",
+      "quote": "Wir werden immer etwas Neues lernen. Das ist das Geheimnis."
+    },
+    {
+      "id": 16,
+      "author": "Neil deGrasse Tyson",
+      "quote": "Das Tolle an der Wissenschaft ist, dass sie wahr ist, egal ob man an sie glaubt oder nicht."
+    },
+    {
+      "id": 17,
+      "author": "Werner Heisenberg",
+      "quote": "Der erste Trunk aus dem Becher der Naturwissenschaft macht atheistisch, aber auf dem Grund des Bechers wartet Gott."
+    },
+    {
+      "id": 18,
+      "author": "Rachel Carson",
+      "quote": "In der Natur ist nichts für sich allein existent."
+    },
+    {
+      "id": 19,
+      "author": "Johannes Kepler",
+      "quote": "Die Wege, auf denen die Menschen zur Erkenntnis gelangen, sind mir fast ebenso bewundernswert wie die Natur der Dinge selbst."
+    },
+    {
+      "id": 20,
+      "author": "Grace Hopper",
+      "quote": "Der gefährlichste Satz in der Sprache ist: 'Das haben wir schon immer so gemacht'."
+    },
+    {
+      "id": 21,
+      "author": "Alexander von Humboldt",
+      "quote": "Die gefährlichste Weltanschauung ist die Weltanschauung der Leute, welche die Welt nie angeschaut haben."
+    },
+    {
+      "id": 22,
+      "author": "Galileo Galilei",
+      "quote": "Alle Wahrheiten sind leicht zu verstehen, wenn sie erst einmal entdeckt sind; der Punkt ist, sie zu entdecken."
+    },
+    {
+      "id": 23,
+      "author": "Maria Mitchell",
+      "quote": "Wir brauchen besonders in der Wissenschaft Visionäre."
+    },
+    {
+      "id": 24,
+      "author": "Robert Oppenheimer",
+      "quote": "Der Optimist sieht in der Zukunft eine Chance, der Pessimist eine Gefahr."
+    },
+    {
+      "id": 25,
+      "author": "Dmitri Mendelejew",
+      "quote": "Es gibt nichts über die Arbeit hinaus, was die Seele so sehr erhebt."
+    },
+    {
+      "id": 26,
+      "author": "Mae Jemison",
+      "quote": "Lass dich niemals durch die begrenzte Vorstellungskraft anderer einschränken."
+    },
+    {
+      "id": 27,
+      "author": "Wernher von Braun",
+      "quote": "Alles, was der Mensch sich heute vorstellen kann, werden andere morgen verwirklichen."
+    },
+    {
+      "id": 28,
+      "author": "Barbara McClintock",
+      "quote": "Wenn man weiß, dass man auf dem richtigen Weg ist, hat man dieses Wissen im Inneren, dann kann einen niemand umstimmen."
+    },
+    {
+      "id": 29,
+      "author": "Guglielmo Marconi",
+      "quote": "Jeder Tag bringt einen neuen Fortschritt."
+    },
+    {
+      "id": 30,
+      "author": "Francis Bacon",
+      "quote": "Wissen ist Macht."
+    },
+    {
+      "id": 31,
+      "author": "Edwin Hubble",
+      "quote": "Ausgestattet mit seinen fünf Sinnen erforscht der Mensch das Universum um ihn herum und nennt das Abenteuer Wissenschaft."
+    },
+    {
+      "id": 32,
+      "author": "Chien-Shiung Wu",
+      "quote": "Es gibt nur eine Sache, die schlimmer ist als keine Arbeit zu haben, und das ist Arbeit zu tun, für die man kein Talent hat."
+    },
+    {
+      "id": 33,
+      "author": "Linus Pauling",
+      "quote": "Der beste Weg, eine gute Idee zu haben, ist, viele Ideen zu haben."
+    },
+    {
+      "id": 34,
+      "author": "Rita Levi-Montalcini",
+      "quote": "Hab keine Angst vor schwierigen Momenten. Das Beste kommt aus ihnen heraus."
+    },
+    {
+      "id": 35,
+      "author": "Leonardo da Vinci",
+      "quote": "Wissenschaft ist der Kapitän, die Praxis sind die Soldaten."
+    },
+    {
+      "id": 36,
+      "author": "Subrahmanyan Chandrasekhar",
+      "quote": "Wissenschaft ist eine Suche nach dem Schönen."
+    },
+    {
+      "id": 37,
+      "author": "Jonas Salk",
+      "quote": "Die Belohnung für eine gut getane Arbeit ist die Gelegenheit, mehr zu tun."
+    },
+    {
+      "id": 38,
+      "author": "Lise Meitner",
+      "quote": "Wissenschaft macht den Menschen mitleidlos, aber sie macht ihn auch groß."
+    },
+    {
+      "id": 39,
+      "author": "Ernest Rutherford",
+      "quote": "Wir haben kein Geld, also müssen wir denken."
+    },
+    {
+      "id": 40,
+      "author": "Michio Kaku",
+      "quote": "Die Zukunft gehört denjenigen, die die Möglichkeiten in den Problemen von heute sehen."
+    },
+    {
+      "id": 41,
+      "author": "Vera Rubin",
+      "quote": "Habt keine Angst davor, Dinge zu hinterfragen, die jeder für wahr hält."
+    },
+    {
+      "id": 42,
+      "author": "James Clerk Maxwell",
+      "quote": "Man sollte nie die Arbeit unterschätzen, die nötig ist, um etwas Einfaches zu verstehen."
+    },
+    {
+      "id": 43,
+      "author": "Hedy Lamarr",
+      "quote": "Ideen sind die wichtigste Währung der Zukunft."
+    },
+    {
+      "id": 44,
+      "author": "E.O. Wilson",
+      "quote": "Wir ertrinken in Informationen, während wir nach Weisheit dürsten."
+    },
+    {
+      "id": 45,
+      "author": "Svante Pääbo",
+      "quote": "Man muss bereit sein, Fehler zu machen, um wirklich Neues zu entdecken."
+    },
+    {
+      "id": 46,
+      "author": "Sylvia Earle",
+      "quote": "Mit jedem Tropfen Wasser, den du trinkst, mit jedem Atemzug, den du nimmst, bist du mit dem Meer verbunden."
+    },
+    {
+      "id": 47,
+      "author": "Benoit Mandelbrot",
+      "quote": "Die Wissenschaft ist dazu da, die Komplexität der Welt in einfache Regeln zu fassen."
+    },
+    {
+      "id": 48,
+      "author": "Fritz Haber",
+      "quote": "Das Wissen gehört der Menschheit, und es ist die Fackel, die die Welt beleuchtet."
+    },
+    {
+      "id": 49,
+      "author": "Alice Ball",
+      "quote": "Lass dich nicht aufhalten, wenn du eine Vision hast, die das Leben anderer verbessern kann."
+    },
+    {
+      "id": 50,
+      "author": "Clyde Tombaugh",
+      "quote": "Harte Arbeit ist der einzige Weg, um das Unbekannte zu erforschen."
+    }
+  ]
+}

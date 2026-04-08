@@ -2,11 +2,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { User } from "../../types/User";
 import { apiClient } from "../../services/BackendApiService";
+import { updateUserAsync } from "../users/UserSlice";
 import axios from "axios";
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   token: string | null;
   loading: boolean;
   error: string | null;
@@ -15,6 +17,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  isAdmin: false,
   token: null,
   loading: true, // Start loading as true - wait for Auth-Initialization
   error: null,
@@ -109,6 +112,10 @@ const registerAsync = createAsyncThunk(
   "auth/register",
   async (userData: Omit<User, "id" | "createdAt">, { rejectWithValue }) => {
     try {
+      if (userData.username.includes("admin")) {
+        throw Error("Username can't be admin!");
+      }
+
       const response = await apiClient.register(userData);
       return response;
     } catch (err: unknown) {
@@ -140,10 +147,12 @@ const AuthSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      state.isAdmin = false;
       state.token = null;
       state.error = null;
       // Clear persisted auth data from localStorage
       localStorage.removeItem("authUser");
+      localStorage.removeItem("authToken");
       apiClient.clearToken();
     },
 
@@ -164,6 +173,7 @@ const AuthSlice = createSlice({
           state.user = action.payload.user;
           state.token = action.payload.token;
           state.isAuthenticated = true;
+          state.isAdmin = action.payload.user.role === "admin";
         } else {
           // No stored auth data
           state.isAuthenticated = false;
@@ -190,8 +200,12 @@ const AuthSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.isAdmin = action.payload.user.role === "admin";
+
         // Persist user data to localStorage for hydration on page reload
         localStorage.setItem("authUser", JSON.stringify(action.payload.user));
+        localStorage.setItem("authToken", action.payload.token);
+
         // Store token in ApiClient so future requests include the token
         apiClient.setToken(action.payload.token);
         console.log("[Auth Debug] User logged in:", action.payload.user.name);
@@ -210,20 +224,49 @@ const AuthSlice = createSlice({
       })
       .addCase(registerAsync.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
-        // Persist user data to localStorage for hydration on page reload
-        localStorage.setItem("authUser", JSON.stringify(action.payload.user));
-        // Store token in ApiClient so future requests include the token
-        apiClient.setToken(action.payload.token);
-        console.log("[Auth Debug] User registered:", action.payload.user.name);
+        if (!action.payload.user || !action.payload.token) {
+          console.log(
+            "[Auth Debug] User or token have not been there to be saved into localStorage!",
+          );
+          state.error =
+            "[Auth Debug] User or token have not been there to be saved into localStorage!";
+          state.isAuthenticated = false;
+        } else {
+          state.user = action.payload.user;
+          state.token = action.payload.token;
+          state.isAuthenticated = true;
+          state.isAdmin = action.payload.user.role === "admin";
+
+          // Persist user data to localStorage for hydration on page reload
+          localStorage.setItem("authUser", JSON.stringify(action.payload.user));
+          localStorage.setItem("authToken", action.payload.token);
+
+          // Store token in ApiClient so future requests include the token
+          apiClient.setToken(action.payload.token);
+
+          console.log(
+            "[Auth Debug] User registered:",
+            action.payload.user.name,
+          );
+        }
       })
       .addCase(registerAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.isAuthenticated = false;
       });
+
+    builder.addCase(updateUserAsync.fulfilled, (state, action) => {
+      if (state.user && state.user.id === action.payload?.id) {
+        // Update the user data in AuthState immediately
+        state.user = action.payload;
+        state.isAdmin = action.payload.role === "admin";
+
+        localStorage.setItem("authUser", JSON.stringify(action.payload));
+
+        console.log("[Auth Sync] Auth state updated via UserSlice");
+      }
+    });
   },
 });
 

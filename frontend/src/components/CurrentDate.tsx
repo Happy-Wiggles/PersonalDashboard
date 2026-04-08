@@ -9,9 +9,26 @@ const CurrentDate = () => {
     setTimeout(() => setDate(new Date().toLocaleDateString("de-DE")), 300000); // Every 5min
   }, [date]);
 
+  const formatDate = (date: string | undefined) => {
+    if (date === undefined) {
+      return new Date();
+    }
+
+    const dateObj = new Date(date);
+    const formattedDate = new Intl.DateTimeFormat("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(dateObj);
+
+    return formattedDate;
+  };
+
   return (
     <div>
-      <p className="text-2xl text-gray-200 font-bold">{date}</p>
+      <p className="text-2xl text-gray-200 font-bold">
+        {formatDate(date).toString()}
+      </p>
     </div>
   );
 };

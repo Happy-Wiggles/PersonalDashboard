@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { registerAsync, clearError } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
+import confetti from "canvas-confetti";
 
 interface FormData {
   username: string;
@@ -75,6 +76,21 @@ const Register = ({ setTitle }: RegisterProps) => {
       return;
     }
 
+    // Calculate the center of the button
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2 - 110) / window.innerWidth;
+    const y = (rect.top + rect.height / 2 + 60) / window.innerHeight;
+
+    const dirMin = -0.5;
+    const dirMax = 0.5;
+
+    const randDirection = getRandomInt(dirMin, dirMax);
+
+    const angleMin = 65;
+    const angleMax = 115;
+
+    const randAngle = getRandomInt(angleMin, angleMax);
+
     // Call async register action
     const result = await dispatch(
       registerAsync({
@@ -83,12 +99,33 @@ const Register = ({ setTitle }: RegisterProps) => {
         surname: formData.surname,
         email: formData.email,
         password: formData.password,
+        role: "user",
       }),
     );
 
     if (result.type === registerAsync.fulfilled.type) {
       console.log("Registration successful!");
+
+      confetti({
+        particleCount: 250,
+        spread: 360,
+        origin: { x, y },
+        zIndex: 1000,
+        disableForReducedMotion: true,
+        startVelocity: 20,
+        shapes: ["circle"],
+        flat: true,
+        drift: randDirection,
+        angle: randAngle,
+        gravity: 0,
+        decay: 1.005,
+        colors: ["#25fa5e", "#a3ffbc", "#00ff0d"],
+      });
     }
+  };
+
+  const getRandomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
   const handleOnAlreadyRegisteredClick = () => {

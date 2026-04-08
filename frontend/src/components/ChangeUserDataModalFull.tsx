@@ -7,7 +7,7 @@ interface ChangeUserDataModalProps {
   toggleModal: () => void;
 }
 
-const ChangeUserDataModal = ({
+const ChangeUserDataModalFull = ({
   toBeChangedUser,
   onSubmit,
   toggleModal,
@@ -15,7 +15,7 @@ const ChangeUserDataModal = ({
   const [theUser, setTheUser] = useState<User>(toBeChangedUser);
 
   return (
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-2 flex flex-col gap-4 bg-gray-800 border-2 border-cyan-400 rounded-lg z-40 p-4 w-120 h-auto">
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-6 flex flex-col gap-4 bg-gray-800 border-2 border-cyan-400 rounded-lg z-40 p-4 w-120 h-auto">
       <p className="font-bold border-b border-white pb-2 text-white">
         Profildaten ändern:
       </p>
@@ -40,6 +40,13 @@ const ChangeUserDataModal = ({
         className="bg-gray-600 text-gray-200 placeholder:text-gray-400 border border-cyan-400 rounded-md p-2"
         placeholder="Benutzername"
       />
+      <input
+        type="email"
+        value={theUser.email}
+        onChange={(e) => setTheUser({ ...theUser, email: e.target.value })}
+        className="bg-gray-600 text-gray-200 placeholder:text-gray-400 border border-cyan-400 rounded-md p-2"
+        placeholder="E-Mail"
+      />
       <div className="flex flex-row justify-between gap-2">
         <button
           className="bg-cyan-600 hover:bg-cyan-500 transition-all duration-200 text-gray-200 rounded-md px-4 py-3 w-70 cursor-pointer"
@@ -58,4 +65,4 @@ const ChangeUserDataModal = ({
   );
 };
 
-export default ChangeUserDataModal;
+export default ChangeUserDataModalFull;

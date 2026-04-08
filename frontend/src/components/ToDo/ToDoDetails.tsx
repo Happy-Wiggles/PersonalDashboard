@@ -10,10 +10,10 @@ interface ToDoDetailsProps {
 const ToDoDetails = ({ setTitle }: ToDoDetailsProps) => {
   const { listId } = useParams<{ listId: string }>();
   const [toDos, setToDos] = useState<ToDoItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const [newTaskName, setNewTaskName] = useState("");
-  const [priority, setPriority] = useState(1);
+  const [newTaskName, setNewTaskName] = useState<string>("");
+  const [priority, setPriority] = useState<number>(1);
 
   useEffect(() => {
     const loadToDos = async () => {
@@ -74,43 +74,44 @@ const ToDoDetails = ({ setTitle }: ToDoDetailsProps) => {
     if (isShadow) {
       switch (priority) {
         case 1:
-          color = "shadow-gray-400";
+          color = "shadow-[0px_0px_10px_rgba(150,150,150,0.9)]";
           break;
         case 2:
-          color = "shadow-[0px_0px_10rgba(2,150,2,0.8)]";
+          color = "shadow-[0px_0px_10px_rgba(2,150,2,0.9)]";
           break;
         case 3:
-          color = "shadow-[0px_0px_10rgba(0,50,160,0.8)]";
+          console.log("Reached number 3 shadow");
+          color = "shadow-[0px_0px_10px_rgba(0,50,160,0.9)]";
           break;
         case 4:
-          color = "shadow-[0px_0px_10rgba(255,125,15,0.8)]";
+          color = "shadow-[0px_0px_10px_rgba(255,125,15,0.9)]";
           break;
         case 5:
-          color = "shadow-[0px_0px_10rgba(215,25,15,0.8)]";
+          color = "shadow-[0px_0px_10px_rgba(215,25,15,0.9)]";
           break;
         default:
-          color = "shadow-gray-400";
+          color = "shadow-[0px_0px_10px_rgba(150,150,150,0.9)]";
           break;
       }
     } else {
       switch (priority) {
         case 1:
-          color = "bg-gray-400";
+          color = "bg-[rgba(150,150,150,0.9)]";
           break;
         case 2:
-          color = "bg-[rgba(2,150,2,0.8)]";
+          color = "bg-[rgba(2,150,2,0.6)]";
           break;
         case 3:
-          color = "bg-[rgba(0,50,160,0.8)]";
+          color = "bg-[rgba(0,50,160,0.6)]";
           break;
         case 4:
-          color = "bg-[rgba(255,125,15,0.8)]";
+          color = "bg-[rgba(255,125,15,0.6)]";
           break;
         case 5:
-          color = "bg-[rgba(215,25,15,0.8)]";
+          color = "bg-[rgba(215,25,15,0.6)]";
           break;
         default:
-          color = "bg-gray-400";
+          color = "bg-[rgba(150,150,150,0.9)]";
           break;
       }
     }
@@ -147,7 +148,7 @@ const ToDoDetails = ({ setTitle }: ToDoDetailsProps) => {
     priority: number,
   ): string => {
     if (completed) {
-      return "bg-[rgba(54,51,51,0.2)] p-4 shadow flex flex-col gap-1 w-70 h-40 rounded-lg border-gray-600 justify-around items-center truncate text-gray-500";
+      return `bg-[rgba(54,51,51,0.2)] p-4 shadow ${getPriorityColor(priority ? priority : 3, true)} flex flex-col gap-1 w-70 h-40 rounded-lg border-gray-600 justify-around items-center truncate text-gray-500`;
     } else {
       return `bg-gray-800 p-4 shadow flex flex-col gap-1 w-70 h-40 rounded-lg ${getPriorityColor(priority ? priority : 3, true)} justify-around items-center truncate text-gray-100`;
     }
@@ -218,7 +219,7 @@ const ToDoDetails = ({ setTitle }: ToDoDetailsProps) => {
       ) : toDos.length === 0 ? (
         <p>Noch keine ToDos erstellt! Fang doch gleich an!</p>
       ) : (
-        <div className="space-y-2 gap-2 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="space-y-2 gap-2 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 ml-10">
           {toDos
             .sort((a, b) => b.priority - a.priority)
             .map((todo) => (
