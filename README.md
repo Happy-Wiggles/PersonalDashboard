@@ -1,4 +1,4 @@
-# 📊 Personal Dashboard
+# Personal Dashboard
 
 Eine vollständige Full-Stack Webanwendung zur Verwaltung von Benutzerkonten und persönlichen Aufgaben mit moderner React Frontend und Express Backend.
 
@@ -10,9 +10,10 @@ Eine vollständige Full-Stack Webanwendung zur Verwaltung von Benutzerkonten und
 
 ---
 
-## ✨ Features
+## Features
 
 ### Authentifizierung
+
 - Sichere Benutzerregistrierung und Anmeldung
 - JWT Token basierte Authentifizierung
 - Passwort Hashing mit Bcrypt
@@ -20,12 +21,14 @@ Eine vollständige Full-Stack Webanwendung zur Verwaltung von Benutzerkonten und
 - Protected Routes für authentifizierte Bereiche
 
 ### Benutzerverwaltung
+
 - Benutzerprofile mit vollständigen Informationen
 - Profilbearbeitung mit Validierung
 - Benutzerliste für Administratoren
 - Admin und User Rollen System
 
 ### Aufgabenverwaltung
+
 - Erstellung von ToDo Listen
 - Hinzufügen von Aufgaben mit Prioritäten (1 bis 5)
 - Aufgaben als erledigt markieren
@@ -33,6 +36,7 @@ Eine vollständige Full-Stack Webanwendung zur Verwaltung von Benutzerkonten und
 - Automatische Sortierung nach Priorität und Status
 
 ### Benutzeroberfläche
+
 - Modernes Glasmorphic Design
 - Loading Spinner bei asynchronen Operationen
 - Responsive Layout für Desktop und Mobile
@@ -41,9 +45,10 @@ Eine vollständige Full-Stack Webanwendung zur Verwaltung von Benutzerkonten und
 
 ---
 
-## 🛠️ Technologie Stack
+## Technologie Stack
 
 ### Frontend
+
 ```
 React 19                  - UI Framework
 TypeScript 5.9            - Type Safety
@@ -56,6 +61,7 @@ Heroicons                 - UI Icons
 ```
 
 ### Backend
+
 ```
 Express 5                 - Web Framework
 TypeScript 6              - Backend Type Safety
@@ -67,9 +73,10 @@ CORS                      - Cross Origin Requests
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Voraussetzungen
+
 - Node.js 18+
 - npm oder yarn
 
@@ -102,6 +109,7 @@ npm run dev
 ```
 
 ### Gleichzeitig starten
+
 ```bash
 # Terminal 1: Backend
 cd backend && npm start
@@ -141,15 +149,17 @@ PersonalDashboard/
 
 ---
 
-## 🔑 API Endpoints
+## API Endpoints
 
 ### Authentifizierung
+
 ```
 POST   /auth/register    - Benutzer registrieren
 POST   /auth/login       - Benutzer anmelden
 ```
 
 ### Benutzer (erfordert JWT Token)
+
 ```
 GET    /users           - Alle Benutzer abrufen
 PUT    /users/:id       - Benutzerdaten aktualisieren
@@ -157,6 +167,7 @@ DELETE /users/:id       - Benutzer löschen
 ```
 
 ### ToDo Listen (erfordert JWT Token)
+
 ```
 GET    /todolists/:userId       - Listen eines Benutzers
 POST   /todolists                - Neue Liste erstellen
@@ -165,6 +176,7 @@ DELETE /todolists/:id            - Liste löschen
 ```
 
 ### ToDo Items (erfordert JWT Token)
+
 ```
 GET    /todos/list/:listId      - Aufgaben einer Liste
 POST   /todos                    - Neue Aufgabe erstellen
@@ -174,7 +186,7 @@ DELETE /todos/:id                - Aufgabe löschen
 
 ---
 
-## 🔐 Sicherheitsfeatures
+## Sicherheitsfeatures
 
 - Passwörter werden mit Bcrypt gehashed
 - JWT Token mit 1 Stunde Validität
@@ -185,7 +197,7 @@ DELETE /todos/:id                - Aufgabe löschen
 
 ---
 
-## 📝 Testbenutzer
+## Testbenutzer
 
 Nach dem ersten Start kannst du diese Anmeldedaten testen:
 
@@ -198,7 +210,7 @@ Oder registriere einen neuen Benutzer über die Register Seite.
 
 ---
 
-## 🎓 Lernziele
+## Lernziele
 
 Dieses Projekt wurde erstellt um folgende Konzepte zu erlernen:
 
@@ -212,9 +224,10 @@ Dieses Projekt wurde erstellt um folgende Konzepte zu erlernen:
 
 ---
 
-## 📦 Build & Deployment
+## Build & Deployment
 
 ### Frontend bauen
+
 ```bash
 cd frontend
 npm run build    # Erstellt /dist Ordner
@@ -222,6 +235,7 @@ npm run preview  # Preview des Builds
 ```
 
 ### Backend produktiv starten
+
 ```bash
 cd backend
 npm start
@@ -229,24 +243,24 @@ npm start
 
 ---
 
-## 🐛 Known Issues
+## Known Issues
 
 - Keine aktuellen bekannten Probleme
 
 ---
 
-## 📄 Lizenz
+## Lizenz
 
 Dieses Projekt wird zu Lernzwecken verwendet und steht unter der MIT Lizenz.
 
 ---
 
-## 👨‍💻 Entwickler
+## Entwickler
 
-Erstellt als Teil des Alfatraining React Kurses.
+Ich war alleiniger Entwickler und erstellte das Projekt als Teil der Alfatraining React Weiterbildung innerhalb von ca. 1 Woche (Stand 09.04.2026).
 
 ---
 
-## 📧 Support
+## Support
 
 Bei Fragen oder Problemen öffne bitte ein GitHub Issue.
