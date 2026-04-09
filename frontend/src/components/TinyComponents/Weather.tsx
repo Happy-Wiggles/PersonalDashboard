@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import WeatherService from "../services/WeatherApiService";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import WeatherService from "../../services/WeatherApiService";
 
 interface OpenMeteoResponse {
   timezone: string;
@@ -38,7 +39,7 @@ const Weather = () => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [selectedWeather, setSelectedWeather] = useState<WeatherDataCollection>(
     {
-      label: "Aktuell",
+      label: "Heute",
       degrees: "0",
       windspeed: "0",
     },
@@ -57,7 +58,7 @@ const Weather = () => {
           setSelectedWeather({
             degrees: `${result.data.current_weather.temperature}°C`,
             windspeed: `${result.data.current_weather.windspeed} km/h`,
-            label: "Aktuell",
+            label: "Heute",
           });
           console.log("Weather has been loaded successfully!");
         } else {
@@ -82,7 +83,7 @@ const Weather = () => {
       setSelectedWeather({
         degrees: `${weatherData.current_weather.temperature}°C`,
         windspeed: `${weatherData.current_weather.windspeed} km/h`,
-        label: "Aktuell",
+        label: "Heute",
       });
     } else {
       // Vorhersage-Daten für die anderen Tage
@@ -100,7 +101,7 @@ const Weather = () => {
 
   return (
     <div>
-      <div className="rounded-2xl shadow-inner">
+      <div className="rounded-2xl shadow-inner h-full p-4">
         {/* If the weather api could not be reached mockdata is being used and this warning will be shown */}
         {isMock && (
           <div className="bg-amber-500/10 border border-amber-500/50 p-3 rounded-lg mb-4 flex items-center gap-3">
@@ -117,22 +118,24 @@ const Weather = () => {
           </div>
         )}
 
-        <h3 className="text-cyan-400 font-bold mb-2">
+        <h3 className="text-[rgba(250,250,250,0.9)] text-[22px] p-1 font-bold uppercase tracking-widest mb-2 titles-pulse">
           Wettervorhersagen für "{weatherData?.timezone || "Niemandsland"}"
         </h3>
 
         {loading ? (
-          <p className="text-gray-400 italic">Suche Satelliten...</p>
+          <div className="flex justify-center py-12">
+            <ArrowPathIcon className="w-10 h-10 animate-spin text-cyan-400" />
+          </div>
         ) : weatherData ? (
           <div className="text-white">
             {/* Label based on selected day */}
-            <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">
-              {selectedWeather?.label || "Aktuell"}
+            <p className="text-[20px] text-[rgba(40,220,240,0.8)] font-semibold uppercase tracking-wider mb-1">
+              {selectedWeather?.label || "Heute"}
             </p>
             {/* Degrees */}
             <p className="text-4xl font-bold">{selectedWeather?.degrees}</p>
             {/* Windspeed */}
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-gray-400 mt-1 pt-4">
               Windgeschwindigkeit:{" "}
               <span className="text-gray-200">
                 {selectedWeather?.windspeed ||
@@ -141,7 +144,7 @@ const Weather = () => {
             </p>
             <div
               id="specificInfos"
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-700/50"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-500/60"
             >
               {/* Rain possibility */}
               <div className="flex flex-col">
@@ -155,7 +158,7 @@ const Weather = () => {
                   className="w-12 h-12 md:w-20 md:h-20 object-contain select-none transition-transform duration-300 hover:scale-120 drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
                   loading="lazy"
                 ></img>
-                <span className="text-white text-lg font-medium pl-2.5">
+                <span className="text-white text-lg font-medium pr-42">
                   {weatherData.daily.precipitation_probability_max[activeIndex]}
                   %
                 </span>
@@ -175,7 +178,7 @@ const Weather = () => {
                   </span> */}
                 <span className="text-white text-lg font-medium">
                   {weatherData.daily.uv_index_max[activeIndex]}
-                  <span className="text-xs text-gray-400 ml-1">
+                  <span className="text-xs text-gray-400 ml-1 pr-42">
                     (
                     {weatherData.daily.uv_index_max[activeIndex] > 5
                       ? "Hoch"
@@ -197,7 +200,7 @@ const Weather = () => {
                 {/* <span className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">
                     Sonnen-Aufgang
                   </span> */}
-                <span className="text-white text-lg font-medium ml-2">
+                <span className="text-white text-lg font-medium ml-2 pr-44">
                   {new Date(
                     weatherData.daily.sunrise[activeIndex],
                   ).toLocaleTimeString("de-DE", {
@@ -219,7 +222,7 @@ const Weather = () => {
                 {/* <span className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">
                     Sonnen-Untergang
                   </span> */}
-                <span className="text-white text-lg font-medium ml-2">
+                <span className="text-white text-lg font-medium ml-2 pr-44">
                   {new Date(
                     weatherData.daily.sunset[activeIndex],
                   ).toLocaleTimeString("de-DE", {
@@ -235,7 +238,7 @@ const Weather = () => {
         )}
         {weatherData && (
           <div className="mt-8">
-            <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-4 px-2">
+            <h3 className="text-gray-400 text-[18px] font-semibold uppercase tracking-wider mb-4 px-2">
               7-Tage-Vorhersage
             </h3>
 

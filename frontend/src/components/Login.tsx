@@ -4,6 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginAsync, clearError } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
 import confetti from "canvas-confetti";
+import {
+  ArrowPathIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
 
 interface FormData {
   email: string;
@@ -17,6 +22,7 @@ interface LoginProps {
 const Login = ({ setTitle }: LoginProps) => {
   useEffect(() => setTitle("Login"), [setTitle]);
   const [showLoginError, setShowLoginError] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -31,6 +37,9 @@ const Login = ({ setTitle }: LoginProps) => {
     (state: RootState) => state.auth,
   );
 
+  const isEmailValid = validateEmail(formData.email);
+
+  // Show error message for 3 seconds if there's an error
   useEffect(() => {
     if (error) {
       const setShowLogin = () => {
@@ -72,7 +81,7 @@ const Login = ({ setTitle }: LoginProps) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Calculate the center of the button
@@ -131,61 +140,87 @@ const Login = ({ setTitle }: LoginProps) => {
   };
 
   return (
-    <div className="bg-gray-700 p-4 m-2 rounded flex flex-row self-center">
-      <div>
-        <p className="text-2xl text-white pb-4 text-left">
-          Bitte loggen Sie sich ein:{" "}
-        </p>
+    <div className="relative self-center w-full max-w-md">
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded">
+          <ArrowPathIcon className="w-12 h-12 animate-spin text-cyan-400" />
+        </div>
+      )}
 
-        {/* Error message display */}
-        {error && showLoginError && (
-          <div className="bg-red-500 text-white p-3 rounded mb-4 text-sm">
-            {error}
-          </div>
-        )}
+      <div className="bg-gray-800 p-4 m-2 rounded-xl flex flex-row gap-4 border border-gray-600 shadow-lg shadow-cyan-900/20 w-full">
+        <div>
+          <p className="text-[22px] text-gray-200 pb-4 text-center uppercase tracking-wide font-semibold">
+            Bitte loggen Sie sich ein:{" "}
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="E-Mail"
-            value={formData.email}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2 border-gray-300`}
-            onChange={(e) => handleChange("email", e.target.value)}
-            required
-            disabled={loading}
-          />
-          <input
-            type="password"
-            placeholder="Passwort"
-            value={formData.password}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2 border-gray-300`}
-            onChange={(e) => handleChange("password", e.target.value)}
-            required
-            disabled={loading}
-          />
-          <div id="loginButtonSection" className="flex flex-row gap-2">
-            <button
-              type="submit"
-              className={`w-[50%] bg-green-600 text-white py-2 rounded hover:bg-green-700 transition cursor-pointer ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+          {/* Error message display */}
+          {error && showLoginError && (
+            <div className="bg-red-500 text-gray-200 p-3 rounded mb-4 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4 px-2 w-104">
+            {/* Email input field */}
+            <input
+              type="email"
+              placeholder="E-Mail"
+              value={formData.email}
+              className={`w-full p-2 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 focus:ring-0 focus:ring-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              onChange={(e) => handleChange("email", e.target.value)}
+              required
               disabled={loading}
-            >
-              {loading ? "Loading..." : "Login"}
-            </button>
-            <button
-              type="button"
-              className="w-[50%] bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition cursor-pointer disabled:opacity-50"
-              onClick={handleOnRegisterClick}
-              disabled={loading}
-            >
-              Registieren
-            </button>
-          </div>
-        </form>
+            />
+            {/* Password input with show/hide toggle */}
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"} // Type changes based on showPassword state
+                placeholder="Passwort"
+                value={formData.password}
+                className={`w-full p-2 pr-10 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                onChange={(e) => handleChange("password", e.target.value)}
+                required
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-cyan-400 transition-colors cursor-pointer"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+            {/* Button Section */}
+            <div id="loginButtonSection" className="flex flex-row gap-2">
+              <button
+                type="submit"
+                className={`w-1/2 bg-green-600 text-gray-200 py-2 rounded hover:bg-green-700 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={loading || !isEmailValid}
+              >
+                {loading ? "Loading..." : "Login"}
+              </button>
+              <button
+                type="button"
+                className="w-[50%] bg-[rgba(20,210,240,0.5)] text-white py-2 rounded hover:bg-[rgba(20,210,240,0.8)] transition cursor-pointer disabled:opacity-50"
+                onClick={handleOnRegisterClick}
+                disabled={loading}
+              >
+                Registieren
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
+
+const validateEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export default Login;

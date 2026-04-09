@@ -153,10 +153,15 @@ class APIClient {
   }
 
   // --- TODO ITEMS (ToDos inside a list) ---
-  async getToDoByListId(listId: number): Promise<ToDoItem[]> {
+  async getToDosByListId(listId: number): Promise<ToDoItem[]> {
     const response = await this.client.get<ToDoItem[]>(
       `/todos/lists/${listId}/todos`,
     );
+    return response.data;
+  }
+
+  async getAllToDos(): Promise<ToDoItem[]> {
+    const response = await this.client.get<ToDoItem[]>(`/todos/user/todos`);
     return response.data;
   }
 

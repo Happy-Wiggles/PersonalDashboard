@@ -8,8 +8,8 @@ import {
   updateUserAsync,
   deleteUserAsync,
 } from "../features/users/UserSlice";
-import ConfirmationModal from "./ConfirmationModal";
-import ChangeUserDataModalFull from "./ChangeUserDataModalFull";
+import ConfirmationModal from "./Modals/ConfirmationModal";
+import ChangeUserDataModalFull from "./Modals/ChangeUserDataModalFull";
 import EditIcon from "../assets/icons/edit.svg";
 import DeleteIcon from "../assets/icons/delete.svg";
 
@@ -90,16 +90,10 @@ const UserOverview = ({ setTitle }: UserOverviewProps) => {
 
   return (
     <div className="p-6">
-      {showModal && (
+      {(showModal || showConfirmDeletion) && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-md z-30 transition-all duration-300"
           onClick={() => setShowModal(false)}
-        />
-      )}
-      {showConfirmDeletion && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-md z-31 transition-all duration-300"
-          onClick={() => setShowConfirmDeletion(false)}
         />
       )}
       <div>

@@ -54,8 +54,8 @@ const Privacy = ({ setTitle }: PrivacyProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 text-left">
-      <div className="max-w-3xl mx-auto bg-gray-700 p-8 rounded-lg shadow-md">
+    <div className="min-h-screen bg-gray-800/40 py-12 px-4 sm:px-6 lg:px-8 text-left">
+      <div className="max-w-3xl mx-auto bg-[rgba(30,41,59,0.8)] p-8 rounded-lg shadow-md">
         <button
           onClick={handleBackButtonClick}
           className="bg-cyan-800 text-gray-300 hover:bg-cyan-600 p-2 px-4 mb-6 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"

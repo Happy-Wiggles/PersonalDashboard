@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import confetti from "canvas-confetti";
 import { logout } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
-import DefaultFunNavBackButton from "./DefaultFunNavBackButton";
+import DefaultFunNavBackButton from "./TinyComponents/DefaultFunNavBackButton";
 
 interface NavBarProps {
   pageTitle: string;
@@ -109,28 +109,50 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
+  const isNotBackButtonAllowedPage = (title: string) => {
+    const isForbiddenPage =
+      title.includes("Dashboard") ||
+      title.includes("Datenschutz") ||
+      title.includes("Registrieren") ||
+      title.includes("Login");
+
+    return isForbiddenPage;
+  };
+
   return (
-    <div>
+    <div className="contents">
       <nav
-        className={`bg-gray-900/80 backdrop-blur-md text-white shadow-md sticky top-0 z-50 transition-transform duration-300 ${
-          visible ? "translate-y-0" : "-translate-y-full"
+        className={`bg-[rgba(20,125,205,0.3)] border-b border-white/10 backdrop-blur-md text-white shadow-md sticky top-0 z-60 transition-transform duration-300 ${
+          visible
+            ? "translate-y-0 ease-in-out"
+            : "-translate-y-full ease-in-out"
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center h-16 pr-35">
             {/* Logo */}
-            <div className="text-xl font-semibold tracking-wide">
-              Info-Center
+            <div
+              className={` 
+                ${
+                  pageTitle.includes("Login") ||
+                  pageTitle.includes("Registrieren")
+                    ? "h-10 items-center text-center pt-2 pl-4 mb-2"
+                    : "h-10 items-center text-center pt-2 pl-4 mb-2"
+                }`}
+            >
+              <p className="text-2xl font-black tracking-tighter bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent">
+                INFO-CENTER
+              </p>
             </div>
 
             {/* Navigation */}
-            <div className="flex space-x-6 items-center">
+            <div className="flex items-center space-x-6 bg-white/5 p-3 rounded-2xl border border-white/5 px-6 h-14">
               {navItems.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `transition-colors duration-200 ${
+                    `transition-colors duration-200 font-semibold rounded-xl text-[18px] ${
                       isActive
                         ? "text-cyan-400"
                         : "text-gray-300 hover:text-white"
@@ -142,38 +164,46 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
               ))}
 
               {/* User Info & Logout Button (only shown when authenticated) */}
-              {isAuthenticated && user ? (
-                <div className="flex items-center space-x-4 ml-6 pl-4 border-l border-gray-600">
-                  <div className="text-sm">
-                    <p className="text-gray-300">Angemeldet als:</p>
+              <div className="flex-1 flex justify-end pl-6">
+                {isAuthenticated && user ? (
+                  <div className="flex group items-center gap-2 w-auto">
                     <NavLink
-                      key={user.name}
                       to="/userprofile"
-                      className="font-semibold text-cyan-400 transition-colors duration-200 hover:text-white hover:bg-cyan-500 px-2 py-0.5 rounded-xl"
+                      className="group flex items-center h-[45px] gap-3 bg-white/5 hover:bg-white/10 p-1.5 pr-3 rounded-xl border border-white/10 group-transition-all"
                     >
-                      {user.username || user.name || "User"}
+                      <div className="w-8 h-8 rounded-full bg-cyan-500/80 flex items-center justify-center font-bold text-gray-800 uppercase group-hover:bg-cyan-400 group-duration-300">
+                        {user.username?.charAt(0) || "U"}
+                      </div>
+                      <span className="text-[16px] font-bold text-gray-300 group-hover:text-cyan-400/80 transition-colors">
+                        {user.username}
+                      </span>
                     </NavLink>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-red-800/70 hover:bg-red-500 px-4 py-2 rounded-lg transition duration-200 text-sm font-semibold cursor-pointer pb-2.5"
+                    >
+                      Abmelden
+                    </button>
                   </div>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-red-800 hover:bg-red-600 px-4 py-2 rounded-lg transition duration-200 text-sm font-semibold cursor-pointer pb-2.5"
-                  >
-                    Abmelden
-                  </button>
-                </div>
-              ) : null}
+                ) : (
+                  // Holds it centered when no user info is shown
+                  <div className="w-20" />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </nav>
+
       {/* Header */}
-      {pageTitle !== "Forum" ? (
-        <div className="text-white mt-3 mb-3 mx-4 p-4 w-auto rounded bg-gray-800/50 backdrop-blur-md shadow-[0px_0px_15px_rgba(6,182,212,0.3)] sticky top-0 z-50 flex flex-row justify-between">
-          <p className="text-4xl font-bold text-[rgba(10,190,220,0.9)]">
+      {!pageTitle.includes("Dashboard") &&
+      !pageTitle.includes("Datenschutz") ? (
+        <div className="flex flex-row justify-between text-white mt-3 mb-3 mx-4 p-4 w-auto rounded-xl bg-[rgba(20,125,205,0.15)] backdrop-blur-md border border-white/10 shadow-[0px_0px_15px_rgba(34,211,238,0.2)] sticky top-0 z-70">
+          <p className="text-2xl font-bold text-cyan-400 tracking-wide uppercase pt-0.5">
             {pageTitle}
           </p>
-          {pageTitle.includes("Dashboard") ||
-          pageTitle.includes("Datenschutz") ? (
+          {/* Show Back button only when not on specific pages */}
+          {isNotBackButtonAllowedPage(pageTitle) ? (
             ""
           ) : (
             <DefaultFunNavBackButton></DefaultFunNavBackButton>

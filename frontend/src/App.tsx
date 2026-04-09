@@ -15,7 +15,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import About from "./components/About";
-import Contact from "./components/Contact";
+import Contact from "./components/Contact/Contact";
 import Profile from "./components/Profile";
 import ToDoLists from "./components/ToDo/ToDoLists";
 import ToDoDetails from "./components/ToDo/ToDoDetails";

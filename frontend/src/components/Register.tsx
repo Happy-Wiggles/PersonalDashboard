@@ -4,6 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerAsync, clearError } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
 import confetti from "canvas-confetti";
+import {
+  ArrowPathIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
 
 interface FormData {
   username: string;
@@ -19,6 +24,7 @@ interface RegisterProps {
 
 const Register = ({ setTitle }: RegisterProps) => {
   useEffect(() => setTitle("Registrieren"), [setTitle]);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<FormData>({
     username: "",
@@ -34,7 +40,6 @@ const Register = ({ setTitle }: RegisterProps) => {
   const isEmailValid = validateEmail(formData.email);
   const isPasswordValid = validatePassword(formData.password);
 
-  // Select auth state from Redux store
   const { isAuthenticated, loading, error } = useSelector(
     (state: RootState) => state.auth,
   );
@@ -43,25 +48,24 @@ const Register = ({ setTitle }: RegisterProps) => {
     Partial<Record<keyof FormData, boolean>>
   >({});
 
-  // Clear any previous error when component unmounts
   useEffect(() => {
     return () => {
       dispatch(clearError());
     };
   }, [dispatch]);
 
-  // Navigate to dashboard after successful registration
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      const timer = setTimeout(() => {
+        navigate("/dashboard");
+      }, 1200);
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, navigate]);
 
   const getBorderClass = (fieldName: keyof FormData, isValid: boolean) => {
-    if (!touched[fieldName]) return "border-gray-600";
-    return isValid
-      ? "border-green-500 outline-none"
-      : "border-red-500 outline-none";
+    if (!touched[fieldName]) return "border-gray-400";
+    return isValid ? "border-green-500" : "border-red-500";
   };
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -69,29 +73,14 @@ const Register = ({ setTitle }: RegisterProps) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isEmailValid || !isPasswordValid) return;
 
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
-
-    // Calculate the center of the button
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (rect.left + rect.width / 2 - 110) / window.innerWidth;
     const y = (rect.top + rect.height / 2 + 60) / window.innerHeight;
 
-    const dirMin = -0.5;
-    const dirMax = 0.5;
-
-    const randDirection = getRandomInt(dirMin, dirMax);
-
-    const angleMin = 65;
-    const angleMax = 115;
-
-    const randAngle = getRandomInt(angleMin, angleMax);
-
-    // Call async register action
     const result = await dispatch(
       registerAsync({
         username: formData.username,
@@ -104,8 +93,6 @@ const Register = ({ setTitle }: RegisterProps) => {
     );
 
     if (result.type === registerAsync.fulfilled.type) {
-      console.log("Registration successful!");
-
       confetti({
         particleCount: 250,
         spread: 360,
@@ -115,8 +102,8 @@ const Register = ({ setTitle }: RegisterProps) => {
         startVelocity: 20,
         shapes: ["circle"],
         flat: true,
-        drift: randDirection,
-        angle: randAngle,
+        drift: Math.random() - 0.5,
+        angle: 90,
         gravity: 0,
         decay: 1.005,
         colors: ["#25fa5e", "#a3ffbc", "#00ff0d"],
@@ -124,133 +111,146 @@ const Register = ({ setTitle }: RegisterProps) => {
     }
   };
 
-  const getRandomInt = (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
-
-  const handleOnAlreadyRegisteredClick = () => {
-    navigate("/login");
-  };
-
   return (
-    <div className="bg-gray-700 p-6 m-2 w-110 rounded flex flex-row self-center">
-      {isAuthenticated && (
-        <div className="bg-gray-500 rounded-lg text-green-500 self-center p-4 m-2">
-          <p>Sie sind bereits eingeloggt!</p>
+    <div className="relative self-center w-full max-w-md">
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded">
+          <ArrowPathIcon className="w-12 h-12 animate-spin text-cyan-400" />
         </div>
       )}
-      <div>
-        <p className="text-2xl text-white pb-4 text-left">
-          Bitte registrieren Sie sich:{" "}
-        </p>
 
-        {/* Error message display */}
-        {error && (
-          <div className="bg-red-500 text-white p-3 rounded mb-4 text-sm">
-            {error}
-          </div>
-        )}
+      <div className="bg-gray-800 p-4 m-2 rounded-xl border border-gray-600 shadow-lg shadow-cyan-900/20">
+        <div className="px-2">
+          <p className="text-[22px] text-gray-200 pb-4 text-center uppercase tracking-wide font-semibold">
+            Bitte registrieren Sie sich:
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Benutzername"
-            value={formData.username}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2  transition-colors border-gray-600`}
-            onChange={(e) => handleChange("username", e.target.value)}
-            required
-            disabled={loading}
-          />
-          <input
-            type="text"
-            placeholder="Vorname"
-            value={formData.name}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2 transition-colors border-gray-600`}
-            onChange={(e) => handleChange("name", e.target.value)}
-            required
-            disabled={loading}
-          />
-          <input
-            type="text"
-            placeholder="Nachname"
-            value={formData.surname}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2 transition-colors border-gray-600`}
-            onChange={(e) => handleChange("surname", e.target.value)}
-            required
-            disabled={loading}
-          />
-          {/* Email Section */}
-          {!isEmailValid && touched.email && (
-            <p className="text-red-400 text-xs mt-1 italic pb-0.5">
-              Ungültige E-Mail Adresse
-            </p>
+          {/* Error message display */}
+          {error && (
+            <div className="bg-red-500 text-gray-200 p-3 rounded mb-4 text-sm">
+              {error}
+            </div>
           )}
-          <input
-            type="email"
-            placeholder="E-Mail"
-            value={formData.email}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2 transition-colors ${getBorderClass("email", isEmailValid)}`}
-            onChange={(e) => handleChange("email", e.target.value)}
-            required
-            disabled={loading}
-          />
-          {/* Password Section */}
-          {!isPasswordValid && touched.password && (
-            <p className="text-red-400 text-xs mt-1 italic pb-0.5">
-              Das Passwort muss mindestens 8 Zeichen, Klein-/Großbuchstaben,
-              Zahlen und Sonderzeichen beinhalten
-            </p>
+
+          {isAuthenticated && (
+            <div className="bg-gray-700/50 border border-green-500/50 text-green-400 p-3 rounded mb-4 text-sm text-center">
+              Sie sind bereits eingeloggt!
+            </div>
           )}
-          <input
-            type="password"
-            placeholder="Passwort"
-            value={formData.password}
-            className={`w-full p-2 rounded bg-gray-500 text-white border-2 transition-colors ${getBorderClass("password", isPasswordValid)}`}
-            onChange={(e) => handleChange("password", e.target.value)}
-            required
-            disabled={loading}
-          />
-          <div className="flex flex-col gap-4 w-full max-w-md">
-            <div className="flex flex-row gap-3">
-              <button
-                type="submit"
-                className={`flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50 transition cursor-pointer ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={loading || !isEmailValid || !isPasswordValid}
-              >
-                {loading ? "Loading..." : "Registrieren"}
-              </button>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              type="text"
+              placeholder="Benutzername"
+              value={formData.username}
+              className={`w-full p-2 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              onChange={(e) => handleChange("username", e.target.value)}
+              required
+              disabled={loading}
+            />
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Vorname"
+                value={formData.name}
+                className={`w-1/2 p-2 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                onChange={(e) => handleChange("name", e.target.value)}
+                required
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="Nachname"
+                value={formData.surname}
+                className={`w-1/2 p-2 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                onChange={(e) => handleChange("surname", e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div className="relative">
+              <input
+                type="email"
+                placeholder="E-Mail"
+                value={formData.email}
+                className={`w-full p-2 rounded bg-gray-500 text-gray-200 border-2 transition-all outline-none focus:border-cyan-400 ${getBorderClass("email", isEmailValid)} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                onChange={(e) => handleChange("email", e.target.value)}
+                required
+                disabled={loading}
+              />
+              {!isEmailValid && touched.email && (
+                <p className="text-red-400 text-[10px] mt-0.5 italic pl-1">
+                  Ungültige E-Mail Adresse
+                </p>
+              )}
+            </div>
+
+            {/* Password input with show/hide toggle */}
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"} // Type changes based on showPassword state
+                placeholder="Passwort"
+                value={formData.password}
+                className={`w-full p-2 pr-10 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                onChange={(e) => handleChange("password", e.target.value)}
+                required
+                disabled={loading}
+              />
               <button
                 type="button"
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50 transition"
-                onClick={handleOnAlreadyRegisteredClick}
-                disabled={loading}
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-cyan-400 transition-colors cursor-pointer"
               >
-                Bereits registriert?
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
               </button>
             </div>
-            <p className="text-[13px] text-gray-500 leading-tight text-center px-2">
-              Mit der Registrierung erklärst du dich mit unserer{" "}
-              <Link
-                to="/privacy"
-                className="text-blue-400 underline hover:text-gray-200"
-              >
-                Datenschutzerklärung
-              </Link>{" "}
-              einverstanden.
-            </p>
-          </div>
-        </form>
+
+            <div className="flex flex-col gap-3 pt-2">
+              <div className="flex flex-row gap-2">
+                <button
+                  type="submit"
+                  className={`w-1/2 bg-green-600 text-gray-200 py-2 rounded hover:bg-green-700 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+                  disabled={loading || !isEmailValid || !isPasswordValid}
+                >
+                  {loading ? "Loading..." : "Registrieren"}
+                </button>
+                <button
+                  type="button"
+                  className="w-1/2 bg-[rgba(20,210,240,0.5)] text-white py-2 rounded hover:bg-[rgba(20,210,240,0.8)] transition cursor-pointer disabled:opacity-50"
+                  onClick={() => navigate("/login")}
+                  disabled={loading}
+                >
+                  Zum Login
+                </button>
+              </div>
+
+              <p className="text-[11px] text-gray-500 leading-tight text-center px-4">
+                Mit der Registrierung erklärst du dich mit unserer{" "}
+                <Link
+                  to="/privacy"
+                  className="text-blue-400 underline hover:text-gray-200"
+                >
+                  Datenschutzerklärung
+                </Link>{" "}
+                einverstanden.
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-// Regex not in component because it brings more performance that way
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
 const validatePassword = (pw: string) =>
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
     pw,
