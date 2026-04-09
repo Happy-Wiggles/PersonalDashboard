@@ -38,7 +38,7 @@ const About = ({ setTitle }: AboutProps) => {
           className={`
         z-10 transition-all duration-500 ease-in-out
         bg-gray-900/60 backdrop-blur-lg
-        p-6 shadow-[0_0_30px_rgba(0,0,0,0.3)] 
+        p-8 shadow-[0_0_30px_rgba(0,0,0,0.3)] 
         rounded-2xl border border-cyan-500/20
         whitespace-pre-wrap leading-relaxed text-gray-200
         ${
@@ -51,7 +51,7 @@ const About = ({ setTitle }: AboutProps) => {
           <div className="relative">
             {descriptionText}
             {/* Decorative corner element to show that its not only a regular text box */}
-            <div className="absolute -bottom-2 -right-2 w-12 h-12 border-b-2 border-r-2 border-cyan-500/30 rounded-br-lg" />
+            <div className="absolute -bottom-2 -right-2 w-12 h-12 border-b-2 border-r-2 border-cyan-500/30 rounded-br-lg p-4" />
           </div>
         </div>
         <p className="pt-6 text-[14px] font-bold text-gray-400/90 uppercase tracking-[3px]">

@@ -18,15 +18,14 @@ const ToDoWidget = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (toDoListItems.length === 0) {
-        await dispatch(fetchToDoListsAsync());
-      }
-
-      dispatch(fetchAllUserToDosAsync());
+      await Promise.all([
+        dispatch(fetchToDoListsAsync()),
+        dispatch(fetchAllUserToDosAsync()),
+      ]);
     };
 
     loadData();
-  }, [dispatch, toDoListItems.length]);
+  }, [dispatch]);
 
   const topTodos = [...toDos]
     .filter((t) => !t.completed)
@@ -34,8 +33,12 @@ const ToDoWidget = () => {
     .slice(0, 5);
 
   const getListName = (listId: number) => {
+    if (!toDoListItems || toDoListItems.length === 0) {
+      return "Lade...";
+    }
+
     const list = toDoListItems.find((l) => Number(l.id) === listId);
-    return list ? list.title : "Unknown List";
+    return list ? list.title : "Unbekannte Liste";
   };
 
   const getPriorityColor = (
@@ -81,34 +84,35 @@ const ToDoWidget = () => {
         </div>
 
         <div className="space-y-3">
-          {loading && topTodos.length === 0 ? (
+          {loading && toDos.length === 0 ? (
             <div className="flex justify-center py-8">
               <ArrowPathIcon className="w-8 h-8 animate-spin text-cyan-400" />
             </div>
           ) : topTodos.length > 0 ? (
-            topTodos.map((todo) => (
-              <div
-                key={todo.id}
-                className={`flex items-center justify-between p-3 bg-gray-950/30 rounded-lg border border-gray-700/50 group hover:border-gray-500 transition-all text-left cursor-pointer ${getPriorityColor(todo.priority, true)}`}
-                onClick={() =>
-                  navigate(`/todos/${todo.listId}/${getListName(todo.listId)}`)
-                }
-              >
-                <div className="flex flex-col overflow-hidden">
-                  <span className="text-sm text-gray-200 truncate group-hover:text-white transition-colors">
-                    {todo.task}
-                  </span>
-                  <span className="text-[12px] text-gray-500 font-bold uppercase tracking-wider">
-                    Liste: {getListName(todo.listId)}
-                  </span>
-                </div>
+            topTodos.map((todo) => {
+              const listName = getListName(todo.listId);
+              return (
                 <div
-                  className={`ml-2 px-2 py-1 rounded text-[10px] font-black text-white ${getPriorityColor(todo.priority)}`}
+                  key={todo.id}
+                  className={`flex items-center justify-between p-3 bg-gray-950/30 rounded-lg border border-gray-700/50 group hover:border-gray-500 transition-all text-left cursor-pointer ${getPriorityColor(todo.priority, true)}`}
+                  onClick={() => navigate(`/todos/${todo.listId}/${listName}`)}
                 >
-                  P{todo.priority}
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-sm text-gray-200 truncate group-hover:text-white transition-colors">
+                      {todo.task}
+                    </span>
+                    <span className="text-[12px] text-gray-500 font-bold uppercase tracking-wider">
+                      Liste: {listName}
+                    </span>
+                  </div>
+                  <div
+                    className={`ml-2 px-2 py-1 rounded text-[10px] font-black text-white ${getPriorityColor(todo.priority)}`}
+                  >
+                    P{todo.priority}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="text-gray-500 text-[18px] italic text-center py-4">
               Keine offenen Aufgaben gefunden. Gut gemacht! 🎉

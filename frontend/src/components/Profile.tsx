@@ -98,8 +98,8 @@ const Profile = ({ setTitle }: DashboardProps) => {
           ""
         )}
       </div>
-      <div className="bg-gray-800/70 p-4 m-2 rounded-xl flex flex-col gap-4 border border-gray-600 shadow-lg shadow-cyan-900/20 w-120">
-        <div className="bg-[rgba(45,105,151,0.4)] flex flex-col rounded-3xl p-4">
+      <div className="bg-gray-800/70 p-4 m-2 rounded-3xl flex flex-col gap-4 border border-gray-700/70 shadow-lg shadow-cyan-900/20 w-120">
+        <div className="bg-[rgba(45,125,181,0.2)] flex flex-col rounded-3xl p-4">
           <p
             className="mt-4 text-2xl text-left font-black tracking-normal 
               bg-linear-to-r from-green-300 via-cyan-400 to-blue-500 

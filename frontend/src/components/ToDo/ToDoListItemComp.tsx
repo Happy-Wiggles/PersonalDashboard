@@ -51,37 +51,38 @@ const ToDoListItemComp = ({ listItem, handleDelete, stats }: Props) => {
               [ {stats.totalCompleted} / {stats.total} ] Aufgaben erledigt
             </p>
           </div>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(listItem.id);
-            }}
-            className="p-2 bg-red-500/70 hover:bg-red-500/90 rounded-[9px] transition-all duration-200 cursor-pointer"
-          >
-            <img
-              src={DeleteIcon}
-              alt="Delete"
-              title="Delete"
-              className="min-w-4 min-h-4 w-4 h-4 invert"
-            />
-          </button>
         </div>
       </div>
 
       {/* Priority Dots Section */}
-      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-700/50">
-        {[1, 2, 3, 4, 5].map((p) => {
-          const count = stats[`p${p}` as keyof typeof stats] as number;
-          return (
-            <div
-              key={p}
-              className={`flex items-center justify-center min-w-7 h-7 px-1.5 rounded-lg text-[10px] font-black text-white shadow-sm transition-all ${getDotColor(p)} ${count === 0 ? "opacity-10 grayscale" : "opacity-100"}`}
-            >
-              {count}
-            </div>
-          );
-        })}
+      <div className="flex flex-row gap-15">
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-700/50">
+          {[1, 2, 3, 4, 5].map((p) => {
+            const count = stats[`p${p}` as keyof typeof stats] as number;
+            return (
+              <div
+                key={p}
+                className={`flex items-center justify-center min-w-7 h-7 px-1.5 rounded-lg text-[10px] font-black text-white shadow-sm transition-all ${getDotColor(p)} ${count === 0 ? "opacity-10 grayscale" : "opacity-100"}`}
+              >
+                {count}
+              </div>
+            );
+          })}
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(listItem.id);
+          }}
+          className="p-2 mt-8 bg-red-500/50 hover:bg-red-500/90 rounded-[9px] transition-all duration-200 cursor-pointer h-8 w-8"
+        >
+          <img
+            src={DeleteIcon}
+            alt="Delete"
+            title="Delete"
+            className="min-w-4 min-h-4 w-4 h-4 invert"
+          />
+        </button>
       </div>
     </div>
   );

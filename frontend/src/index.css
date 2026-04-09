@@ -146,3 +146,75 @@ code {
 .titles-pulse {
   animation: colorPulse 2s ease-in-out infinite;
 }
+
+@keyframes orb-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+@keyframes orb-color {
+  0%,
+  100% {
+    background-color: rgba(6, 182, 212, 0.15);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+}
+
+.animate-orb-float {
+  animation: orb-float 1s ease-in-out infinite;
+}
+
+.animate-orb-float-delayed {
+  animation: orb-float 2s ease-in-out infinite reverse;
+}
+
+.animate-orb-color {
+  animation: orb-color 1s linear infinite;
+}
+
+.cyber-grid {
+  background-image:
+    linear-gradient(rgba(6, 182, 212, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.3) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center;
+  transform: perspective(1000px) rotateX(60deg) translateY(-200px) scale(3);
+  transform-origin: top;
+}
+
+@keyframes grid-flow {
+  0% {
+    background-position: center 0px;
+  }
+  100% {
+    background-position: center 50px;
+  }
+}
+
+.animate-grid-flow {
+  animation: grid-flow 3s linear infinite;
+}
+
+@keyframes orb-float {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(15px, -30px);
+  }
+}
+
+.animate-orb-float-subtle {
+  animation: orb-float 15s ease-in-out infinite alternate;
+}

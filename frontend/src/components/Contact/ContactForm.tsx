@@ -60,8 +60,8 @@ const ContactForm = () => {
 
   return (
     <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
-      <p className="text-2xl font-black uppercase tracking-widest bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent pb-8">
-        Schreib mir gern eine Nachricht!
+      <p className="text-2xl font-semibold uppercase tracking-wide bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent pb-8">
+        Schreibe mir gern eine Nachricht!
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -98,7 +98,7 @@ const ContactForm = () => {
             required
           />
           {!isEmailValid && touched.email && (
-            <p className="text-red-400 text-[10px] font-bold uppercase ml-2">
+            <p className="text-red-400 text-[12px] font-bold uppercase ml-2">
               Ungültige E-Mail
             </p>
           )}
@@ -114,8 +114,8 @@ const ContactForm = () => {
             required
           />
           {!isTelValid && touched.tel && (
-            <p className="text-red-400 text-[10px] font-bold uppercase ml-2">
-              Ungültige Nummer
+            <p className="text-red-400 text-[12px] font-bold uppercase ml-2">
+              Ungültige Nummer - ( bitte im Format +49 123 4567890 eingeben )
             </p>
           )}
         </div>
@@ -149,7 +149,7 @@ const ContactForm = () => {
           disabled={
             !isEmailValid || !isTelValid || formData.message.length <= 0
           }
-          className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-cyan-900/40 transition-all active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
+          className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-cyan-900/40 transition-all active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed cursor-pointer"
         >
           Nachricht Senden
         </button>

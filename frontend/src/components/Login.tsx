@@ -140,7 +140,7 @@ const Login = ({ setTitle }: LoginProps) => {
   };
 
   return (
-    <div className="relative self-center w-full max-w-md">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#0f172a]">
       {/* Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded">
@@ -148,37 +148,45 @@ const Login = ({ setTitle }: LoginProps) => {
         </div>
       )}
 
-      <div className="bg-gray-800 p-4 m-2 rounded-xl flex flex-row gap-4 border border-gray-600 shadow-lg shadow-cyan-900/20 w-full">
-        <div>
-          <p className="text-[22px] text-gray-200 pb-4 text-center uppercase tracking-wide font-semibold">
-            Bitte loggen Sie sich ein:{" "}
+      {/* Fun floating cyber grid */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 w-full h-[200%] cyber-grid animate-grid-flow opacity-60"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-cyan-950/40 rounded-full blur-[120px] animate-orb-float-subtle"></div>
+        <div className="absolute -bottom-20 -right-20 w-125 h-125 rounded-full bg-blue-950/30 blur-[150px]"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-[#0a1120] via-transparent to-[#0a1120] opacity-80"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-[#0a1120] via-transparent to-[#0a1120] opacity-80"></div>
+      </div>
+
+      {/* Login Card */}
+      <div className="relative z-10 w-full max-w-md px-4 pb-20">
+        <div className="bg-gray-800/60 backdrop-blur-md p-6 rounded-2xl border border-gray-600 shadow-lg shadow-cyan-900/20 w-full">
+          <p className="text-[22px] text-gray-200 pb-6 text-center uppercase tracking-wide font-semibold">
+            Bitte loggen Sie sich ein
           </p>
 
-          {/* Error message display */}
           {error && showLoginError && (
-            <div className="bg-red-500 text-gray-200 p-3 rounded mb-4 text-sm">
+            <div className="bg-red-500/80 backdrop-blur-sm text-white p-3 rounded-xl mb-4 text-sm border border-red-400">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 px-2 w-104">
-            {/* Email input field */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="email"
               placeholder="E-Mail"
               value={formData.email}
-              className={`w-full p-2 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 focus:ring-0 focus:ring-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`w-full p-3 rounded-xl bg-gray-900/50 text-gray-200 border-2 border-gray-600 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
               onChange={(e) => handleChange("email", e.target.value)}
               required
               disabled={loading}
             />
-            {/* Password input with show/hide toggle */}
+
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"} // Type changes based on showPassword state
+                type={showPassword ? "text" : "password"}
                 placeholder="Passwort"
                 value={formData.password}
-                className={`w-full p-2 pr-10 rounded bg-gray-500 text-gray-200 border-2 border-gray-400 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`w-full p-3 pr-12 rounded-xl bg-gray-900/50 text-gray-200 border-2 border-gray-600 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                 onChange={(e) => handleChange("password", e.target.value)}
                 required
                 disabled={loading}
@@ -186,7 +194,7 @@ const Login = ({ setTitle }: LoginProps) => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-cyan-400 transition-colors cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-cyan-400 transition-colors cursor-pointer"
               >
                 {showPassword ? (
                   <EyeSlashIcon className="h-5 w-5" />
@@ -195,7 +203,9 @@ const Login = ({ setTitle }: LoginProps) => {
                 )}
               </button>
             </div>
+
             {/* Button Section */}
+
             <div id="loginButtonSection" className="flex flex-row gap-2">
               <button
                 type="submit"
@@ -204,6 +214,7 @@ const Login = ({ setTitle }: LoginProps) => {
               >
                 {loading ? "Loading..." : "Login"}
               </button>
+
               <button
                 type="button"
                 className="w-[50%] bg-[rgba(20,210,240,0.5)] text-white py-2 rounded hover:bg-[rgba(20,210,240,0.8)] transition cursor-pointer disabled:opacity-50"
