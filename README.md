@@ -122,7 +122,7 @@ cd frontend && npm run dev
 
 ---
 
-## 📁 Projektstruktur
+## Projektstruktur
 
 ```
 PersonalDashboard/
