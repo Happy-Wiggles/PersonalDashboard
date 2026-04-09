@@ -99,6 +99,20 @@ export const createTodoRouter = (db: Database) => {
     }
   });
 
+  // Get all ToDos from all ToDoLists of a user
+  router.get("/user/todos", async (req: any, res) => {
+    const userId = req.user.userId;
+    try {
+      const tasks = await db.all<ToDoItem[]>(
+        "SELECT * FROM todos WHERE listId IN (SELECT id FROM todo_lists WHERE userId = ?)",
+        [userId],
+      );
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: "Error while loading the ToDos" });
+    }
+  });
+
   // Add a new ToDo to a ToDoList
   router.post("/lists/:listId/todos", async (req, res) => {
     const { listId } = req.params;

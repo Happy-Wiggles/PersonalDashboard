@@ -65,6 +65,7 @@ export const createUserRouter = (db: Database) => {
   // DELETE: Deletes a user by ID
   router.delete("/:id", async (req, res) => {
     const { id } = req.params;
+    console.log("Deleting user with ID:", id);
     try {
       const result = await db.run("DELETE FROM users WHERE id = ?", [id]);
       if (result.changes === 0) {
