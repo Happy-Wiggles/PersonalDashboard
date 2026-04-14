@@ -95,7 +95,7 @@ const ToDoWidget = () => {
                 <div
                   key={todo.id}
                   className={`flex items-center justify-between p-3 bg-gray-950/30 rounded-lg border border-gray-700/50 group hover:border-gray-500 transition-all text-left cursor-pointer ${getPriorityColor(todo.priority, true)}`}
-                  onClick={() => navigate(`/todos/${todo.listId}/${listName}`)}
+                  onClick={() => navigate(`/todolists/${todo.listId}`)}
                 >
                   <div className="flex flex-col overflow-hidden">
                     <span className="text-sm text-gray-200 truncate group-hover:text-white transition-colors">

@@ -112,7 +112,7 @@ function AppContent() {
           }
         />
         <Route
-          path="/todo/:listId"
+          path="/todolists/:listId"
           element={
             <ProtectedRoute>
               <ToDoDetailsPage setTitle={setTitle}></ToDoDetailsPage>
