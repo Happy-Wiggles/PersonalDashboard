@@ -1,0 +1,55 @@
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.navbar-logo {
+  background: linear-gradient(to right, #06b6d4, #d1d5db, #3b82f6, #06b6d4);
+  background-size: 250% 250%;
+  animation: gradient-move 8s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  /* Fallback color */
+  color: #06b6d4;
+}
+
+/* Fallback for browsers that don't support background-clip: text */
+@supports not (background-clip: text) {
+  .navbar-logo {
+    background: none;
+    animation: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+    color: #06b6d4;
+  }
+}
+
+/* Fallback for Dark Reader or reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .navbar-logo {
+    animation: none;
+    color: #06b6d4;
+  }
+}
+
+/* Fallback when system dark mode is enabled (can affect extensions like Dark Reader) */
+@media (forced-colors: active) {
+  .navbar-logo {
+    animation: none;
+    color: #06b6d4;
+  }
+}
+
+.navbar-avatar {
+  background: linear-gradient(135deg, #67e8f9 0%, #3b82f6 100%);
+}

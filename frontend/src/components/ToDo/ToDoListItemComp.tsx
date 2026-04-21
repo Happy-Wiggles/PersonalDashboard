@@ -21,7 +21,7 @@ const ToDoListItemComp = ({ listItem, handleDelete, stats }: Props) => {
   const navigate = useNavigate();
 
   const handleListItemClick = (id: number) => {
-    navigate(`/todo/${id}`);
+    navigate(`/todolists/${id}`);
   };
 
   // Helper for priority dot colors

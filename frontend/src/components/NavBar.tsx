@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import { logout } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
 import DefaultFunNavBackButton from "./TinyComponents/DefaultFunNavBackButton";
+import "./NavBar.css";
 
 interface NavBarProps {
   pageTitle: string;
@@ -122,72 +123,76 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
   return (
     <div className="contents">
       <nav
-        className={`bg-[rgba(20,125,205,0.3)] border-b border-white/10 backdrop-blur-md text-white shadow-md sticky top-0 z-60 transition-transform duration-300 ${
-          visible
-            ? "translate-y-0 ease-in-out"
-            : "-translate-y-full ease-in-out"
-        }`}
+        className={`sticky top-0 z-50 border-b border-white/10 backdrop-blur-md transition-transform duration-300 bg-[#0f1115]/80 supports-backdrop-filter:bg-[#0f1115]/60
+        ${visible ? "translate-y-0" : "-translate-y-full"}`}
       >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center h-16 pr-35">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
             {/* Logo */}
-            <div
-              className={` 
-                ${
-                  pageTitle.includes("Login") ||
-                  pageTitle.includes("Registrieren")
-                    ? "h-10 items-center text-center pt-2 pl-4 mb-2"
-                    : "h-10 items-center text-center pt-2 pl-4 mb-2"
-                }`}
-            >
-              <p className="text-2xl font-black tracking-tighter bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent">
+            <div className="shrink-0">
+              <span className="navbar-logo text-2xl font-black tracking-tighter">
                 INFO-CENTER
-              </p>
+              </span>
             </div>
 
-            {/* Navigation */}
-            <div className="flex items-center space-x-6 bg-white/5 p-3 rounded-2xl border border-white/5 px-6 h-14">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `transition-colors duration-200 font-semibold rounded-xl text-[18px] ${
-                      isActive
-                        ? "text-cyan-400"
-                        : "text-gray-300 hover:text-white"
-                    }`
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              ))}
+            {/* Navigation & Auth */}
+            <div className="flex items-center gap-4 ">
+              {/* Navigation Items */}
+              <div className="hidden md:flex items-center space-x-1 bg-white/5 p-2 rounded-2xl border border-white/10 px-4 shadow-[0px_0px_8px_rgba(40,220,240,0.2)]">
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `px-3 py-2 rounded-lg transition-all duration-200 font-semibold text-sm ${
+                        isActive
+                          ? "bg-cyan-500/30 text-cyan-400"
+                          : "text-gray-300 hover:text-white hover:bg-white/5"
+                      }`
+                    }
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
+              </div>
 
-              {/* User Info & Logout Button (only shown when authenticated) */}
-              <div className="flex-1 flex justify-end pl-6">
+              {/* User Info & Auth Buttons */}
+              <div className="flex items-center gap-3">
                 {isAuthenticated && user ? (
-                  <div className="flex group items-center gap-2 w-auto">
+                  <>
                     <NavLink
                       to="/userprofile"
-                      className="group flex items-center h-[45px] gap-3 bg-white/5 hover:bg-white/10 p-1.5 pr-3 rounded-xl border border-white/10 group-transition-all"
+                      className="hidden sm:flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg border border-white/10 transition-all duration-200 shadow-[0px_0px_8px_rgba(40,220,240,0.2)]"
                     >
-                      <div className="w-8 h-8 rounded-full bg-cyan-500/80 flex items-center justify-center font-bold text-gray-800 uppercase group-hover:bg-cyan-400 group-duration-300">
+                      <div className="navbar-avatar w-8 h-8 pb-[2px] rounded-full flex items-center justify-center font-bold text-white text-sm uppercase">
                         {user.username?.charAt(0) || "U"}
                       </div>
-                      <span className="text-[16px] font-bold text-gray-300 group-hover:text-cyan-400/80 transition-colors">
+                      <span className="text-sm font-semibold text-gray-300">
                         {user.username}
                       </span>
                     </NavLink>
                     <button
                       onClick={handleLogout}
-                      className="bg-red-800/70 hover:bg-red-500 px-4 py-2 rounded-lg transition duration-200 text-sm font-semibold cursor-pointer pb-2.5"
+                      className="bg-red-600/70 hover:bg-red-600/90 px-4 py-2 rounded-lg transition-all duration-200 text-sm text-gray-200 font-semibold cursor-pointer shadow-lg hover:shadow-red-500/80"
                     >
                       Abmelden
                     </button>
-                  </div>
+                  </>
                 ) : (
-                  // Holds it centered when no user info is shown
-                  <div className="w-20" />
+                  <>
+                    <NavLink
+                      to="/login"
+                      className="px-4 py-2 rounded-lg bg-white/10 text-gray-300 hover:text-white hover:bg-cyan-300/20 transition-all duration-200 text-sm font-semibold border border-white/10 shadow-[0px_0px_8px_rgba(40,220,240,0.2)]"
+                    >
+                      Anmelden
+                    </NavLink>
+                    <NavLink
+                      to="/register"
+                      className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white transition-all duration-200 text-sm font-semibold hover:shadow-cyan-500/50 shadow-[0px_0px_8px_rgba(40,220,240,0.2)]"
+                    >
+                      Registrieren
+                    </NavLink>
+                  </>
                 )}
               </div>
             </div>
@@ -198,7 +203,11 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
       {/* Header */}
       {!pageTitle.includes("Dashboard") &&
       !pageTitle.includes("Datenschutz") ? (
-        <div className="flex flex-row justify-between text-white mt-3 mb-3 mx-4 p-4 w-auto rounded-xl bg-[rgba(20,125,205,0.15)] backdrop-blur-md border border-white/10 shadow-[0px_0px_15px_rgba(34,211,238,0.2)] sticky top-0 z-70">
+        <div
+          className={`flex flex-row justify-between text-white mt-3 mb-3 mx-4 px-4 py-2 w-auto rounded-xl bg-[rgba(20,125,205,0.15)] backdrop-blur-md border border-white/10 shadow-[0px_0px_15px_rgba(34,211,238,0.2)] sticky z-40 transition-all duration-300 ${
+            visible ? "top-20" : "top-0"
+          }`}
+        >
           <p className="text-2xl font-bold text-cyan-400 tracking-wide uppercase pt-0.5">
             {pageTitle}
           </p>

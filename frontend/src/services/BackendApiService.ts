@@ -4,7 +4,7 @@ import type { User } from "../types/User";
 import type { ToDoListItem, CreateToDoListData } from "../types/ToDoListItem";
 import type { ToDoItem, CreateToDoItemData } from "../types/ToDoItem";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // --- Interfaces ---
 interface LoginCredentials {
@@ -157,6 +157,7 @@ class APIClient {
     const response = await this.client.get<ToDoItem[]>(
       `/todos/lists/${listId}/todos`,
     );
+
     return response.data;
   }
 
