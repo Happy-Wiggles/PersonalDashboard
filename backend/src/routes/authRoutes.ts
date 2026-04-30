@@ -1,14 +1,11 @@
 import express from "express";
+import type { Request, Response } from "express";
+import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Database } from "sqlite";
-import type { User } from "../types/User.ts";
 
 const SALT_ROUNDS = 10;
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-const JWT_Secret = process.env.JWT_SECRET!; // The "!" tells TS that the variable exists and the value wont be null or undefined
+const JWT_Secret = process.env.JWT_SECRET!;
 const REFRESH_Secret = process.env.REFRESH_TOKEN_SECRET!;
 
 if (!JWT_Secret || !REFRESH_Secret) {
@@ -17,67 +14,90 @@ if (!JWT_Secret || !REFRESH_Secret) {
   );
 }
 
-export const createAuthRouter = (db: Database) => {
+// Interface for JWT Payload to avoid 'any'
+interface JwtPayload {
+  userId: number;
+  role: string;
+  email: string;
+}
+
+export const createAuthRouter = () => {
   const router = express.Router();
 
   // --- REGISTER ROUTE ---
   // REGISTER: Validates input, hashes password, and saves user
-  router.post("/register", async (req, res) => {
+  router.post("/register", async (req: Request, res: Response) => {
     const { username, email, password, name, surname } = req.body;
 
+    // Basic Validation
     if (!username || !email || !password) {
       return res.status(400).json({ error: "Required fields are missing." });
     }
 
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        error:
-          "Password too weak. Requirements: 8+ chars, upper/lower, number, symbol.",
-      });
-    }
-
     try {
-      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-
-      await db.run(
-        "INSERT INTO users (username, email, password, name, surname, role) VALUES (?, ?, ?, ?, ?, ?)",
-        [username, email, hashedPassword, name, surname, "user"],
-      );
-
-      const newUser = await db.get<User>(
-        "SELECT id, username, name, surname, email, createdAt, role FROM users WHERE email = ?",
-        [email],
-      );
-
-      const token = jwt.sign(
-        { userId: newUser?.id, role: newUser?.role, email: newUser?.email },
-        JWT_Secret,
-        { expiresIn: "24h" },
-      );
-
-      if (!token) {
-        return res.status(500).json({ error: "Token generation failed." });
-      }
-
-      res.status(201).json({
-        message: "Registration successful.",
-        token: token,
-        user: newUser,
+      // Check if user already exists
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ email: email }, { username: username }],
+        },
       });
-    } catch (error: any) {
-      if (error.message.includes("UNIQUE constraint failed")) {
+
+      if (existingUser) {
         return res
           .status(409)
           .json({ error: "Username or Email already exists." });
       }
 
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+      // Create the user
+      const newUser = await prisma.user.create({
+        data: {
+          username,
+          email,
+          password: hashedPassword,
+          name,
+          surname,
+          role: "user", // Default role
+        },
+      });
+
+      // Generate Token
+      const token = jwt.sign(
+        {
+          userId: newUser.id,
+          role: newUser.role,
+          email: newUser.email,
+        },
+        JWT_Secret,
+        { expiresIn: "15min" },
+      );
+
+      // Response (with partial user data)
+      res.status(201).json({
+        message: "Registration successful.",
+        token: token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role,
+        },
+      });
+    } catch (error: any) {
+      if (error.message?.includes("UNIQUE constraint failed")) {
+        return res
+          .status(409)
+          .json({ error: "Username or Email already exists." });
+      }
       res.status(500).json({ error: "Internal Server Error" });
     }
   });
 
   // --- LOGIN ROUTE ---
   // LOGIN: Compares hashed password and returns a JWT
-  router.post("/login", async (req, res) => {
+  router.post("/login", async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -87,15 +107,13 @@ export const createAuthRouter = (db: Database) => {
     }
 
     try {
-      const user = await db.get<User>("SELECT * FROM users WHERE email = ?", [
-        email,
-      ]);
+      const user = await prisma.user.findUnique({ where: { email } });
 
-      // Check if user has been found and if password hashes match
-      let isPasswordMatch = user
-        ? await bcrypt.compare(password, user.password)
+      const isPasswordMatch = user
+        ? await bcrypt.compare(password, user.password || "")
         : false;
 
+      // Use a generic error message for both cases for security reasons
       if (!user || !isPasswordMatch) {
         return res.status(401).json({ error: "Invalid credentials." });
       }
@@ -104,27 +122,24 @@ export const createAuthRouter = (db: Database) => {
       const accessToken = jwt.sign(
         { userId: user.id, role: user.role, email: user.email },
         JWT_Secret,
-        {
-          expiresIn: "15min",
-        },
+        { expiresIn: "15min" },
       );
 
       // Generate JWT refresh token (Long-Time: 7 days)
       const refreshToken = jwt.sign(
         { userId: user.id, role: user.role, email: user.email },
         REFRESH_Secret,
-        {
-          expiresIn: "7d",
-        },
+        { expiresIn: "7d" },
       );
 
       res.cookie("refreshToken", refreshToken, {
-        httpOnly: true, // Means JS can't read the cookie (XSS (Cross-Site-Scripting) protection)
-        secure: false, // Must be set to 'true', if HTTPS is being used in production
-        sameSite: "strict", // CSRF (Cross-Site Request Forgery) attack protection
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
+      // Remove password from user object before sending response
       const { password: _, ...userWithoutPassword } = user;
 
       res.json({
@@ -133,13 +148,14 @@ export const createAuthRouter = (db: Database) => {
         user: userWithoutPassword,
       });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   });
 
   // --- REFRESH ROUTE ---
   // The frontend will call it, when the access token is expired
-  router.get("/refresh", async (req, res) => {
+  router.get("/refresh", async (req: Request, res: Response) => {
     const cookies = req.cookies;
 
     if (!cookies?.refreshToken) {
@@ -149,22 +165,20 @@ export const createAuthRouter = (db: Database) => {
     const refreshToken = cookies.refreshToken;
 
     try {
-      // Verify the token
-      const decoded = jwt.verify(refreshToken, REFRESH_Secret) as any;
+      // Verify the token using the JwtPayload interface
+      const decoded = jwt.verify(refreshToken, REFRESH_Secret) as JwtPayload;
 
-      // Generate a new token
+      // Generate a new access token
       const accessToken = jwt.sign(
         { userId: decoded.userId, role: decoded.role, email: decoded.email },
         JWT_Secret,
-        {
-          expiresIn: "15m",
-        },
+        { expiresIn: "15m" },
       );
 
       res.json({ token: accessToken });
     } catch (error) {
       // If the refresh token is expired or not valid
-      res.clearCookie("refreshToken");
+      res.clearCookie("refreshToken", { httpOnly: true, sameSite: "strict" });
       res
         .status(403)
         .json({ error: "Invalid refresh token. Please login again." });
@@ -172,7 +186,7 @@ export const createAuthRouter = (db: Database) => {
   });
 
   // --- LOGOUT ROUTE ---
-  router.post("/logout", (req, res) => {
+  router.post("/logout", (req: Request, res: Response) => {
     res.clearCookie("refreshToken", { httpOnly: true, sameSite: "strict" });
     res.json({ message: "Logged out successfully." });
   });

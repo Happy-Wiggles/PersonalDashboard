@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int          @id @default(autoincrement())
+  username   String
+  name       String
+  surname    String
+  email      String?      @unique
+  password   String
+  createdAt  DateTime     @default(now())
+  role       String       @default("user")
+  todo_lists TodoList[]
+
+  @@map("users") // Connects "User" with the table "users"
+}
+
+model TodoList {
+  id     Int     @id @default(autoincrement())
+  userId Int?
+  title  String
+  user   User?   @relation(fields: [userId], references: [id])
+  todos  Todo[]
+
+  @@map("todo_lists") // Connects "TodoList" with the table "todo_lists"
+}
+
+model Todo {
+  id         Int       @id @default(autoincrement())
+  listId     Int?
+  task       String
+  priority   Int       @default(1)
+  completed  Boolean?  @default(false)
+  todo_list  TodoList? @relation(fields: [listId], references: [id])
+
+  @@map("todos") // Connects "Todo" with the table "todos"
+}

@@ -1,163 +1,245 @@
 import express from "express";
-import { Database } from "sqlite";
-import type { ToDoListItem } from "../types/ToDoListItem.js";
-import type { ToDoItem } from "../types/ToDoItem.js";
+import type { Request, Response } from "express";
+import prisma from "../lib/prisma.js";
 
-// Wir exportieren eine Funktion, die die DB-Instanz annimmt
-export const createTodoRouter = (db: Database) => {
+// Extended interface to include user data from JWT middleware
+interface AuthenticatedRequest extends Request {
+  user?: { userId: number };
+}
+
+export const createTodoRouter = () => {
   const router = express.Router();
+
+  // Helper function to extract and validate userId from the request object
+  const getUserId = (req: AuthenticatedRequest): number => {
+    if (!req.user?.userId) throw new Error("Unauthorized");
+    return req.user.userId;
+  };
 
   // --- TODOLISTS ---
 
-  // Route: Get all lists from a user
-  router.get("/lists", async (req: any, res) => {
+  // GET: Retrieve all lists belonging to the authenticated user
+  router.get("/lists", async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const userId = req.user.userId;
-      const lists = await db.all("SELECT * FROM todo_lists WHERE userId = ?", [
-        userId,
-      ]);
+      const userId = getUserId(req);
+      const lists = await prisma.todoList.findMany({
+        where: { userId },
+      });
       res.json(lists);
     } catch (error) {
-      res.status(500).json({ error: "Fehler beim Laden der Listen" });
+      res.status(500).json({ error: "Failed to load lists" });
     }
   });
 
-  // Route: Create a new list
-  router.post("/lists", async (req: any, res) => {
+  // POST: Create a new ToDo list
+  router.post("/lists", async (req: AuthenticatedRequest, res: Response) => {
     const { title } = req.body;
-    const userId = req.user.userId;
-
-    if (!title) {
-      return res.status(400).json({ error: "Titel ist erforderlich" });
-    }
-
     try {
-      const result = await db.run(
-        "INSERT INTO todo_lists (userId, title) VALUES (?, ?)",
-        [userId, title],
-      );
-      res.status(201).json({ id: result.lastID, title });
+      const userId = getUserId(req);
+      if (!title) return res.status(400).json({ error: "Title is required" });
+
+      const newList = await prisma.todoList.create({
+        data: { title, userId },
+      });
+      res.status(201).json(newList);
     } catch (error) {
-      res.status(500).json({ error: "Fehler beim Erstellen der Liste" });
+      res.status(500).json({ error: "Failed to create list" });
     }
   });
 
-  // Route: Update a ToDoList
-  router.put("/lists/:id", async (req, res) => {
+  // PUT: Update a list title (with ownership check)
+  router.put("/lists/:id", async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
     const { title } = req.body;
-
     try {
-      const result = await db.run(
-        "UPDATE todo_lists SET title = ? WHERE id = ?",
-        [title, id],
-      );
+      const userId = getUserId(req);
 
-      if (result.changes === 0) {
+      // Using updateMany allows us to filter by userId to ensure ownership
+      const updateStatus = await prisma.todoList.updateMany({
+        where: {
+          id: Number(id),
+          userId: userId,
+        },
+        data: { title },
+      });
+
+      if (updateStatus.count === 0) {
         return res
-          .status(404)
-          .json({ error: "ToDo_List not found or no changes made." });
-      }
-      res.json({ message: "ToDo_List updated successfully." });
-    } catch (error) {
-      res.status(500).json({ error: "Update failed." });
-    }
-  });
-
-  // Route: Delete a ToDoList
-  router.delete("/lists/:id", async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      const result = await db.run("DELETE FROM todo_lists WHERE id = ?", [id]);
-
-      if (result.changes === 0) {
-        return res.status(404).json({ error: "todo_lists not found." });
+          .status(403)
+          .json({ error: "List not found or unauthorized" });
       }
 
-      res.json({
-        message: `ToDo list with ID ${id} and all ToDos have been deleted.`,
-      });
+      res.json({ message: "List updated successfully" });
     } catch (error) {
-      res.status(500).json({ error: "Deletion of todo_list failed." });
+      res.status(500).json({ error: "Update failed" });
     }
   });
 
-  // --- TODOs within a TODOLIST ---
+  // DELETE: Remove a list and its todos (Cascade is handled by DB/Prisma schema)
+  router.delete(
+    "/lists/:id",
+    async (req: AuthenticatedRequest, res: Response) => {
+      const { id } = req.params;
+      try {
+        const userId = getUserId(req);
 
-  // Get all ToDos from a ToDoList
-  router.get("/lists/:listId/todos", async (req, res) => {
-    const { listId } = req.params;
-    try {
-      const tasks = await db.all<ToDoItem[]>(
-        "SELECT * FROM todos WHERE listId = ?",
-        [listId],
-      );
-      res.json(tasks);
-    } catch (error) {
-      res.status(500).json({ error: "Error while loading the ToDos" });
-    }
-  });
+        // Verify ownership before deleting
+        const list = await prisma.todoList.findFirst({
+          where: { id: Number(id), userId },
+        });
 
-  // Get all ToDos from all ToDoLists of a user
-  router.get("/user/todos", async (req: any, res) => {
-    const userId = req.user.userId;
-    try {
-      const tasks = await db.all<ToDoItem[]>(
-        "SELECT * FROM todos WHERE listId IN (SELECT id FROM todo_lists WHERE userId = ?)",
-        [userId],
-      );
-      res.json(tasks);
-    } catch (error) {
-      res.status(500).json({ error: "Error while loading the ToDos" });
-    }
-  });
+        if (!list) return res.status(403).json({ error: "Unauthorized" });
 
-  // Add a new ToDo to a ToDoList
-  router.post("/lists/:listId/todos", async (req, res) => {
-    const { listId } = req.params;
-    const { task, priority } = req.body;
+        await prisma.todoList.delete({ where: { id: Number(id) } });
+        res.json({ message: "List deleted" });
+      } catch (error) {
+        res.status(500).json({ error: "Deletion failed" });
+      }
+    },
+  );
 
-    try {
-      const result = await db.run(
-        "INSERT INTO todos (listId, task, priority) VALUES (?, ?, ?)",
-        [listId, task, priority || 1],
-      );
-      res.status(201).json({
-        id: result.lastID,
-        listId: Number(listId),
-        task,
-        priority: priority || 1,
-        completed: false,
-      });
-    } catch (error) {
-      res.status(500).json({ error: "ToDo could not be created." });
-    }
-  });
+  // --- TODOS ---
 
-  // Mark a ToDo as done or change the priority
-  router.put("/items/:todoId", async (req, res) => {
-    const { todoId } = req.params;
-    const { completed, priority } = req.body;
+  // GET: All todos within a specific list
+  router.get(
+    "/lists/:listId/todos",
+    async (req: AuthenticatedRequest, res: Response) => {
+      const { listId } = req.params;
+      try {
+        const userId = getUserId(req);
 
-    try {
-      // Using COALESCE, to only update the values that have been sent
-      await db.run(
-        "UPDATE todos SET completed = COALESCE(?, completed), priority = COALESCE(?, priority) WHERE id = ?",
-        [completed, priority, todoId],
-      );
-      res.json({ message: "Task updated" });
-    } catch (error) {
-      res.status(500).json({ error: "Update did not work." });
-    }
-  });
+        const todos = await prisma.todo.findMany({
+          where: {
+            listId: Number(listId),
+            todo_list: { userId }, // Combined ownership check via relation
+          },
+        });
+        res.json(todos);
+      } catch (error) {
+        res
+          .status(500)
+          .json({ error: `Failed to load todos of list with id: ${listId}` });
+      }
+    },
+  );
 
-  // Delete a todo
-  router.delete("/items/:todoId", async (req, res) => {
-    const { todoId } = req.params;
-    await db.run("DELETE FROM todos WHERE id = ?", [todoId]);
-    res.json({ message: "Task deleted" });
-  });
+  // POST: Create a new todo in a specific list
+  router.post(
+    "/lists/:listId/todos",
+    async (req: AuthenticatedRequest, res: Response) => {
+      const { listId } = req.params;
+      const { task, priority } = req.body;
+      try {
+        const userId = getUserId(req);
+
+        // Verify list ownership
+        const list = await prisma.todoList.findFirst({
+          where: { id: Number(listId), userId },
+        });
+
+        if (!list) return res.status(403).json({ error: "Unauthorized" });
+
+        const newTodo = await prisma.todo.create({
+          data: {
+            listId: Number(listId),
+            task,
+            priority: priority || 1,
+          },
+        });
+        res.status(201).json(newTodo);
+      } catch (error) {
+        res.status(500).json({ error: "Task creation failed" });
+      }
+    },
+  );
+
+  // PUT: Update todo status or priority
+  router.put(
+    "/items/:todoId",
+    async (req: AuthenticatedRequest, res: Response) => {
+      const { todoId } = req.params;
+      const { completed, priority } = req.body;
+      try {
+        const userId = getUserId(req);
+
+        // Check ownership via the related list
+        const targetTodo = await prisma.todo.findFirst({
+          where: { id: Number(todoId), todo_list: { userId } },
+        });
+
+        if (!targetTodo) return res.status(403).json({ error: "Unauthorized" });
+
+        const updatedTodo = await prisma.todo.update({
+          where: { id: Number(todoId) },
+          data: {
+            // If a value is undefined, Prisma leaves the existing DB value as is (COALESCE behavior)
+            completed: completed !== undefined ? completed : undefined,
+            priority: priority !== undefined ? priority : undefined,
+          },
+        });
+
+        res.json(updatedTodo);
+      } catch (error) {
+        res.status(500).json({ error: "Task update failed" });
+      }
+    },
+  );
+
+  // DELETE: Remove a specific todo
+  router.delete(
+    "/items/:todoId",
+    async (req: AuthenticatedRequest, res: Response) => {
+      const { todoId } = req.params;
+      try {
+        const userId = getUserId(req);
+
+        const targetTodo = await prisma.todo.findFirst({
+          where: { id: Number(todoId), todo_list: { userId } },
+        });
+
+        if (!targetTodo) return res.status(403).json({ error: "Unauthorized" });
+
+        await prisma.todo.delete({ where: { id: Number(todoId) } });
+        res.json({ message: "Task deleted" });
+      } catch (error) {
+        res.status(500).json({ error: "Task deletion failed" });
+      }
+    },
+  );
+
+  // GET: All ToDos of the User not depending on the list (for Dashboard widget)
+  router.get(
+    "/user/todos",
+    async (req: AuthenticatedRequest, res: Response) => {
+      try {
+        const userId = getUserId(req);
+
+        const todos = await prisma.todo.findMany({
+          where: {
+            todo_list: {
+              userId: userId,
+            },
+          },
+          include: {
+            todo_list: {
+              select: {
+                title: true,
+              },
+            },
+          },
+          orderBy: [
+            { priority: "desc" }, // Sort by highest priority
+            { task: "asc" }, // Sort alphabetically as the second sort parameter
+          ],
+        });
+
+        res.json(todos);
+      } catch (error) {
+        console.error("Dashboard ToDo-Error:", error);
+        res.status(500).json({ error: "Failed to load all todos" });
+      }
+    },
+  );
 
   return router;
 };
