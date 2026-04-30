@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import confetti from "canvas-confetti";
 import { logout } from "../features/auth/AuthSlice";
 import type { RootState, AppDispatch } from "../store/store";
-import DefaultFunNavBackButton from "./TinyComponents/DefaultFunNavBackButton";
+import DefaultFunNavBackButton from "./PartialComponents/DefaultFunNavBackButton";
 import "./NavBar.css";
 
 interface NavBarProps {

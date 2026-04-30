@@ -98,11 +98,16 @@ const ToDoLists = ({ setTitle }: ToDoProps) => {
                 total: listTodos.length,
                 totalCompleted: listTodos.filter((x) => x.completed).length,
                 totalPending: listTodos.filter((t) => !t.completed).length,
-                p1: listTodos.filter((t) => t.priority === 1).length,
-                p2: listTodos.filter((t) => t.priority === 2).length,
-                p3: listTodos.filter((t) => t.priority === 3).length,
-                p4: listTodos.filter((t) => t.priority === 4).length,
-                p5: listTodos.filter((t) => t.priority === 5).length,
+                p1: listTodos.filter((t) => t.priority === 1 && !t.completed)
+                  .length,
+                p2: listTodos.filter((t) => t.priority === 2 && !t.completed)
+                  .length,
+                p3: listTodos.filter((t) => t.priority === 3 && !t.completed)
+                  .length,
+                p4: listTodos.filter((t) => t.priority === 4 && !t.completed)
+                  .length,
+                p5: listTodos.filter((t) => t.priority === 5 && !t.completed)
+                  .length,
               };
 
               return (

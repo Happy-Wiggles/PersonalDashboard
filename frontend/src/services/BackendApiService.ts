@@ -11,11 +11,23 @@ interface LoginCredentials {
   email: string;
   password: string;
 }
+
 type RegisterData = Omit<User, "id" | "createdAt">;
+
 interface AuthResponse {
   message: string;
   token: string;
   user: User;
+}
+
+export interface ContactRequest {
+  username?: string;
+  name: string;
+  surname: string;
+  email: string;
+  tel?: string;
+  linkedInProfile?: string;
+  message: string;
 }
 
 class APIClient {
@@ -196,6 +208,15 @@ class APIClient {
     console.log("Lösche ToDo mit Pfad:", `/todos/items/${toDoId}`);
     const response = await this.client.delete<{ message: string }>(
       `/todos/items/${toDoId}`,
+    );
+    return response.data;
+  }
+
+  // Contact Message
+  async sendContactMessage(data: ContactRequest): Promise<{ message: string }> {
+    const response = await this.client.post<{ message: string }>(
+      "/contact",
+      data,
     );
     return response.data;
   }

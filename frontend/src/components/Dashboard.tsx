@@ -2,9 +2,9 @@ import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
-import Clock from "./TinyComponents/Clock";
-import CurrentDate from "./TinyComponents/CurrentDate";
-import Weather from "./TinyComponents/Weather";
+import Clock from "./PartialComponents/Clock";
+import CurrentDate from "./PartialComponents/CurrentDate";
+import Weather from "./PartialComponents/Weather";
 import Quotes from "./Quotes";
 import ToDoWidget from "./ToDo/ToDoWidget";
 

@@ -6,6 +6,9 @@ interface ContactProps {
 }
 
 const Contact = ({ setTitle }: ContactProps) => {
+  // const CONTACT_MAIL =
+  //   import.meta.env.VITE_CONTACT_MAIL || "meineMail@gmail.com";
+
   useEffect(() => setTitle("Kontakt"), [setTitle]);
 
   return (
@@ -33,7 +36,7 @@ const Contact = ({ setTitle }: ContactProps) => {
                   Straße
                 </p>
                 <p className="text-lg font-medium group-hover:text-white transition-colors">
-                  Meine Straße 42
+                  Berliner Straße 42
                 </p>
               </div>
 
@@ -43,7 +46,7 @@ const Contact = ({ setTitle }: ContactProps) => {
                     E-Mail
                   </p>
                   <p className="text-lg font-medium text-cyan-400 group-hover:text-cyan-300">
-                    meineEmail@gmail.com
+                    meineMail@gmail.com {/* {CONTACT_MAIL} */}
                   </p>
                 </div>
 
@@ -52,23 +55,23 @@ const Contact = ({ setTitle }: ContactProps) => {
                     Telefon
                   </p>
                   <p className="text-lg font-medium group-hover:text-white transition-colors">
-                    +49 1232 6251222
+                    Gern auf Anfrage
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Dekoratives Element */}
+            {/* Decorative and informative text */}
             <div className="mt-12 p-4 bg-cyan-500/5 rounded-2xl border border-cyan-500/10">
               <p className="text-xs text-cyan-400/60 italic leading-relaxed">
-                Ich freue mich über Anfragen zu spannenden Projekten oder
-                fachlichem Austausch über .NET & React.
+                Ich freue mich über Anfragen zu spannenden Projekten, fachlichem
+                Austausch über .NET & React, oder neuen Business-Möglichkeiten!
               </p>
             </div>
           </div>
         </div>
 
-        {/* Kontaktformular */}
+        {/* Contact Form */}
         <div className="lg:col-span-2">
           <ContactForm />
         </div>

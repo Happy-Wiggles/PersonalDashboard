@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { useAppSelector } from "../../store/hooks";
+import { useEffect } from "react";
+import { apiClient } from "../../services/BackendApiService";
+import type { ContactRequest } from "../../services/BackendApiService";
 
 interface FormData {
   id: string;
@@ -20,9 +24,29 @@ const ContactForm = () => {
     linkedInProfile: "",
     message: "",
   });
+
   const [touched, setTouched] = useState<
     Partial<Record<keyof FormData, boolean>>
   >({});
+
+  const user = useAppSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    const handleFormDataInit = () => {
+      if (user) {
+        setFormData((prev) => ({
+          ...prev,
+          name: user.name || "",
+          surname: user.surname || "",
+          email: user.email,
+        }));
+
+        setTouched({ name: true, surname: true, email: true });
+      }
+    };
+
+    handleFormDataInit();
+  }, [user]);
 
   const isEmailValid = validateEmail(formData.email);
   const isTelValid = validateTel(formData.tel);
@@ -41,10 +65,34 @@ const ContactForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isEmailValid || !isTelValid) return;
-    alert("Nachricht wurde gesendet!");
+
+    try {
+      const payload: ContactRequest = {
+        username: user?.username,
+        name: formData.name,
+        surname: formData.surname,
+        email: formData.email,
+        tel: formData.tel,
+        linkedInProfile: formData.linkedInProfile.includes("www.linkedin.com")
+          ? formData.linkedInProfile
+          : "",
+        message: formData.message,
+      };
+
+      const result = await apiClient.sendContactMessage(payload);
+      console.log(result);
+      if (result.message.includes("200")) {
+        alert("Nachricht wurde erfolgreich gesendet!");
+      }
+
+      // Reset contact form aside from the user data
+      setFormData((prev) => ({ ...prev, message: "", linkedInProfile: "" }));
+    } catch (err) {
+      alert(`Fehler beim Senden der Nachricht: \n${err}`);
+    }
   };
 
   const inputBaseClass =
