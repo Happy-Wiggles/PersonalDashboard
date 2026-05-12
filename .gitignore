@@ -11,6 +11,20 @@ pnpm-debug.log*
 # pnpm-lock.yaml
 
 # =========================
+# Environment Variables
+# =========================
+.env
+.env.local
+.env.*.local
+.env.production
+
+# =========================
+# Database
+# =========================
+*.db
+database.db
+
+# =========================
 # Build Outputs
 # =========================
 dist/
@@ -65,3 +79,4 @@ coverage/
 # =========================
 .tmp/
 .cache/
+*.md
