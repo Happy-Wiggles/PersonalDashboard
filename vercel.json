@@ -10,5 +10,11 @@
       "routePrefix": "/api",
       "framework": "express"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/src/index.ts"
+    }
+  ]
 }
