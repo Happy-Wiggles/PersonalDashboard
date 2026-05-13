@@ -23,6 +23,8 @@ pnpm-debug.log*
 # =========================
 *.db
 database.db
+dev.db
+db_migration.txt
 
 # =========================
 # Build Outputs
