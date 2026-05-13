@@ -69,10 +69,12 @@ app.use(express.json());
     // Use route file contactRoutes.ts at "/contact"
     app.use("/contact", contactLimiter, createContactRouter());
 
-    app.listen(PORT, () => {
-      console.log(`\nNode-Server running at http://localhost:${PORT}\n`);
-      startUptimeCounter();
-    });
+    if (process.env.NODE_ENV !== "production") {
+      app.listen(PORT, () => {
+        console.log(`\nNode-Server running at http://localhost:${PORT}\n`);
+        startUptimeCounter();
+      });
+    }
   } catch (error) {
     console.error("Failed to initialize database:", error);
     process.exit(1);
@@ -91,3 +93,6 @@ function startUptimeCounter() {
     process.stdout.write(`\r[Server Status] Running since: ${timeString}`);
   }, 1000);
 }
+
+// Important for Vercel
+export default app;
