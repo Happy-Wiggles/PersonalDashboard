@@ -2,3 +2,7 @@ Most important commands for this project:
   - running it:
       - npx ts-node src/index.ts => doesnt work anymore because it has problems with imports that have .js
       - npx tsx src/index.ts => works (after install tsx)
+  - Prisma DB stuff:
+      - npx prisma studio => shows Prisma Web-UI
+      - npx prisma migrate dev => creates the .sql files in prisma/migrations with change history
+      - npx prisma db push => makes the schema.prisma a reality (updates the db tables), should only be used in dev scenarions not prod
