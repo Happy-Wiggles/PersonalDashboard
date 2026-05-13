@@ -37,6 +37,18 @@ const Register = ({ setTitle }: RegisterProps) => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
+  const getPasswordRequirements = (pw: string) => {
+    return [
+      { label: "Mind. 8 Zeichen", met: pw.length >= 8 },
+      { label: "Großbuchstabe", met: /[A-Z]/.test(pw) },
+      { label: "Kleinbuchstabe", met: /[a-z]/.test(pw) },
+      { label: "Zahl", met: /\d/.test(pw) },
+      { label: "Sonderzeichen (@$!%*?&)", met: /[@$!%*?&]/.test(pw) },
+    ];
+  };
+
+  const requirements = getPasswordRequirements(formData.password);
+
   const isEmailValid = validateEmail(formData.email);
   const isPasswordValid = validatePassword(formData.password);
 
@@ -195,15 +207,52 @@ const Register = ({ setTitle }: RegisterProps) => {
               {/* Password input with show/hide toggle */}
               <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"} // Type changes based on showPassword state
+                  type={showPassword ? "text" : "password"} // type changes on showPassword
                   placeholder="Passwort"
                   value={formData.password}
-                  className={`w-full p-3 rounded-xl bg-gray-900/50 text-gray-200 border-2 border-gray-600 focus:border-cyan-400 transition-all outline-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  className={`w-full p-3 rounded-xl bg-gray-900/50 text-gray-200 border-2 border-gray-600 focus:border-cyan-400 transition-all outline-none ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
+                  } ${touched.password && !isPasswordValid ? "border-red-500/50" : ""}`}
                   onChange={(e) => handleChange("password", e.target.value)}
                   required
                   disabled={loading}
                 />
+                {/* Register Button */}
                 <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-3.5 right-3 text-gray-400 hover:text-cyan-400 cursor-pointer"
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
+                </button>
+                {/* Password checklist */}
+                {touched.password && !isPasswordValid && (
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2 px-1">
+                    {requirements.map((req, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-1.5 text-[10px] transition-colors ${
+                          req.met ? "text-green-400" : "text-gray-500"
+                        }`}
+                      >
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            req.met
+                              ? "bg-green-400 shadow-[0_0_5px_#4ade80]"
+                              : "bg-gray-600"
+                          }`}
+                        />
+                        {req.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Old Register Button, delete later */}
+                {/* <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-cyan-400 transition-colors cursor-pointer"
@@ -213,7 +262,7 @@ const Register = ({ setTitle }: RegisterProps) => {
                   ) : (
                     <EyeIcon className="h-5 w-5" />
                   )}
-                </button>
+                </button> */}
               </div>
 
               <div className="flex flex-col gap-3 pt-2">
