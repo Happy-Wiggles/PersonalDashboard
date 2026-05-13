@@ -229,7 +229,7 @@ const Register = ({ setTitle }: RegisterProps) => {
                     <EyeIcon className="h-5 w-5" />
                   )}
                 </button>
-                {/* Password checklist */}
+                {/* Password Requirements Checklist */}
                 {touched.password && !isPasswordValid && (
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2 px-1">
                     {requirements.map((req, idx) => (
