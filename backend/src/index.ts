@@ -15,7 +15,6 @@ import { createContactRouter } from "./routes/contactRoutes.js";
 
 const REACT_APP_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
 const ALLOWED_ORIGINS = [REACT_APP_ORIGIN, "http://localhost:4173"];
-const API_PREFIX = process.env.NODE_ENV !== "production" ? "" : "/api";
 
 // --- Rate Limiting ---
 const authLimiter = rateLimit({
@@ -59,21 +58,16 @@ app.use(express.json());
     console.log("Database connected successfully via Prisma");
 
     // Use route file authRoutes.ts at "/auth"
-    app.use(`${API_PREFIX}/auth`, authLimiter, createAuthRouter());
+    app.use(`/auth`, authLimiter, createAuthRouter());
 
     // Use route file usersRoutes.ts at "/users"
-    app.use(
-      `${API_PREFIX}/users`,
-      authenticateToken,
-      authorizeAdmin,
-      createUserRouter(),
-    );
+    app.use(`/users`, authenticateToken, authorizeAdmin, createUserRouter());
 
     // Use route file todoRoutes.ts at "/todos"
-    app.use(`${API_PREFIX}/todos`, authenticateToken, createTodoRouter());
+    app.use(`/todos`, authenticateToken, createTodoRouter());
 
     // Use route file contactRoutes.ts at "/contact"
-    app.use(`${API_PREFIX}/contact`, contactLimiter, createContactRouter());
+    app.use(`/contact`, contactLimiter, createContactRouter());
 
     if (process.env.NODE_ENV !== "production") {
       app.listen(PORT, () => {
