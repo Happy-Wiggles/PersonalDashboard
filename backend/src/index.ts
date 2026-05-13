@@ -15,6 +15,7 @@ import { createContactRouter } from "./routes/contactRoutes.js";
 
 const REACT_APP_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
 const ALLOWED_ORIGINS = [REACT_APP_ORIGIN, "http://localhost:4173"];
+const PORT = Number.parseInt(process.env.PORT || "3000");
 
 // --- Rate Limiting ---
 const authLimiter = rateLimit({
@@ -33,8 +34,6 @@ const contactLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-const PORT = Number.parseInt(process.env.PORT || "3000");
-
 const app = express();
 
 // --- Middleware ---
@@ -51,49 +50,45 @@ app.use(
 app.use(express.json());
 
 // Routes Setup
-(async () => {
-  try {
-    // Test connection
-    await prisma.$connect();
-    console.log("Database connected successfully via Prisma");
+const authRouter = createAuthRouter();
+const userRouter = createUserRouter();
+const todoRouter = createTodoRouter();
+const contactRouter = createContactRouter();
 
-    const authRouter = createAuthRouter();
-    const userRouter = createUserRouter();
-    const todoRouter = createTodoRouter();
-    const contactRouter = createContactRouter();
+// Use route file authRoutes.ts at "/auth"
+app.use(`/auth`, authLimiter, authRouter);
+app.use(`/api/auth`, authLimiter, authRouter);
 
-    // Use route file authRoutes.ts at "/auth"
-    app.use(`/auth`, authLimiter, authRouter);
-    app.use(`/api/auth`, authLimiter, authRouter);
+// Use route file usersRoutes.ts at "/users"
+app.use(`/users`, authenticateToken, authorizeAdmin, userRouter);
+app.use(`/api/users`, authenticateToken, authorizeAdmin, userRouter);
 
-    // Use route file usersRoutes.ts at "/users"
-    app.use(`/users`, authenticateToken, authorizeAdmin, userRouter);
-    app.use(`/api/users`, authenticateToken, authorizeAdmin, userRouter);
+// Use route file todoRoutes.ts at "/todos"
+app.use(`/todos`, authenticateToken, todoRouter);
+app.use(`/api/todos`, authenticateToken, todoRouter);
 
-    // Use route file todoRoutes.ts at "/todos"
-    app.use(`/todos`, authenticateToken, todoRouter);
-    app.use(`/api/todos`, authenticateToken, todoRouter);
+// Use route file contactRoutes.ts at "/contact"
+app.use(`/contact`, contactLimiter, contactRouter);
+app.use(`/api/contact`, contactLimiter, contactRouter);
 
-    // Use route file contactRoutes.ts at "/contact"
-    app.use(`/contact`, contactLimiter, contactRouter);
-    app.use(`/api/contact`, contactLimiter, contactRouter);
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`\nNode-Server running at http://localhost:${PORT}\n`);
+    startUptimeCounter();
+  });
+}
 
-    if (process.env.NODE_ENV !== "production") {
-      app.listen(PORT, () => {
-        console.log(`\nNode-Server running at http://localhost:${PORT}\n`);
-        startUptimeCounter();
-      });
-    }
+// Global 404 handler
+app.use((req, res) => {
+  console.log(`Not found request: ${req.method} ${req.url}`);
+  res.status(404).send(`Express could not found the path: ${req.url}`);
+});
 
-    app.use((req, res) => {
-      console.log(`Not found request: ${req.method} ${req.url}`);
-      res.status(404).send(`Express could not found the path: ${req.url}`);
-    });
-  } catch (error) {
-    console.error("Failed to initialize database:", error);
-    process.exit(1);
-  }
-})();
+// Test prisma DB connection
+prisma
+  .$connect()
+  .then(() => console.log("Database connected successfully via Prisma"))
+  .catch((err) => console.error("Prisma connection error:", err));
 
 // --- Uptime Display ---
 function startUptimeCounter() {
