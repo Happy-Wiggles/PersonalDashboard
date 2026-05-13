@@ -57,17 +57,26 @@ app.use(express.json());
     await prisma.$connect();
     console.log("Database connected successfully via Prisma");
 
+    const authRouter = createAuthRouter();
+    const userRouter = createUserRouter();
+    const todoRouter = createTodoRouter();
+    const contactRouter = createContactRouter();
+
     // Use route file authRoutes.ts at "/auth"
-    app.use(`/auth`, authLimiter, createAuthRouter());
+    app.use(`/auth`, authLimiter, authRouter);
+    app.use(`/api/auth`, authLimiter, authRouter);
 
     // Use route file usersRoutes.ts at "/users"
-    app.use(`/users`, authenticateToken, authorizeAdmin, createUserRouter());
+    app.use(`/users`, authenticateToken, authorizeAdmin, userRouter);
+    app.use(`/api/users`, authenticateToken, authorizeAdmin, userRouter);
 
     // Use route file todoRoutes.ts at "/todos"
-    app.use(`/todos`, authenticateToken, createTodoRouter());
+    app.use(`/todos`, authenticateToken, todoRouter);
+    app.use(`/api/todos`, authenticateToken, todoRouter);
 
     // Use route file contactRoutes.ts at "/contact"
-    app.use(`/contact`, contactLimiter, createContactRouter());
+    app.use(`/contact`, contactLimiter, contactRouter);
+    app.use(`/api/contact`, contactLimiter, contactRouter);
 
     if (process.env.NODE_ENV !== "production") {
       app.listen(PORT, () => {
@@ -75,6 +84,11 @@ app.use(express.json());
         startUptimeCounter();
       });
     }
+
+    app.use((req, res) => {
+      console.log(`Not found request: ${req.method} ${req.url}`);
+      res.status(404).send(`Express could not found the path: ${req.url}`);
+    });
   } catch (error) {
     console.error("Failed to initialize database:", error);
     process.exit(1);
