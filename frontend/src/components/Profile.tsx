@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import type { RootState, AppDispatch } from "../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import ChangeUserDataModal from "./Modals/ChangeUserDataModal";
 import type { User } from "../types/User";
 import { updateUserAsync, deleteUserAsync } from "../features/users/UserSlice";
-import type { RootState, AppDispatch } from "../store/store";
-import ConfirmationModal from "./Modals/ConfirmationModal";
-import { useNavigate } from "react-router";
+import DeleteUserConfirmModal from "./Modals/DeleteUserConfirmModal";
 
 interface DashboardProps {
   setTitle: (title: string) => void;
@@ -36,7 +36,12 @@ const Profile = ({ setTitle }: DashboardProps) => {
     setShowConfirmDeletion(!showConfirmDeletion);
   };
 
-  const onConfirmDeletion = () => {
+  const onConfirmDeletion = (mailConfirmed: boolean) => {
+    if (!mailConfirmed) {
+      console.log("User has not been deleted... Mail was not confirmed.");
+      return;
+    }
+
     dispatch(deleteUserAsync(user?.id ?? ""));
     console.log("User has been deleted...");
     toggleConfirmModal();
@@ -88,12 +93,11 @@ const Profile = ({ setTitle }: DashboardProps) => {
           ""
         )}
         {showConfirmDeletion ? (
-          <ConfirmationModal
+          <DeleteUserConfirmModal
             onConfirm={onConfirmDeletion}
-            confirmButtonText="Ja, Account löschen!"
-            confirmText={`Wollen Sie, ${user?.name} ${user?.surname}, Ihren Account wirklich löschen?`}
             toggleModal={toggleConfirmModal}
-          ></ConfirmationModal>
+            user={user}
+          ></DeleteUserConfirmModal>
         ) : (
           ""
         )}

@@ -8,7 +8,7 @@ import {
   updateUserAsync,
   deleteUserAsync,
 } from "../features/users/UserSlice";
-import ConfirmationModal from "./Modals/ConfirmationModal";
+import DeleteUserConfirmModal from "./Modals/DeleteUserConfirmModal";
 import ChangeUserDataModalFull from "./Modals/ChangeUserDataModalFull";
 import EditIcon from "../assets/icons/edit.svg";
 import DeleteIcon from "../assets/icons/delete.svg";
@@ -107,12 +107,11 @@ const UserOverview = ({ setTitle }: UserOverviewProps) => {
           ""
         )}
         {showConfirmDeletion ? (
-          <ConfirmationModal
+          <DeleteUserConfirmModal
             onConfirm={onConfirmDeletion}
-            confirmButtonText="Ja, Account löschen!"
-            confirmText={`Soll der Account wirklich gelöscht werden?`}
             toggleModal={() => toggleConfirmModal(null)}
-          ></ConfirmationModal>
+            user={selectedUser}
+          ></DeleteUserConfirmModal>
         ) : (
           ""
         )}

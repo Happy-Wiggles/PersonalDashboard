@@ -251,18 +251,6 @@ const Register = ({ setTitle }: RegisterProps) => {
                     ))}
                   </div>
                 )}
-                {/* Old Register Button, delete later */}
-                {/* <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-cyan-400 transition-colors cursor-pointer"
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5" />
-                  )}
-                </button> */}
               </div>
 
               <div className="flex flex-col gap-3 pt-2">
