@@ -160,13 +160,13 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
               aria-label="Menü öffnen"
             >
               <span
-                className={`block w-6 h-0.5 bg-current transition-all duration-200 ${mobileMenuOpen ? "rotate-225 translate-y-2" : ""}`}
+                className={`block w-6 h-0.5 bg-current transition-all duration-200 ${mobileMenuOpen ? "rotate-[225deg] translate-y-2" : ""}`}
               ></span>
               <span
                 className={`block w-6 h-0.5 bg-current transition-all duration-300 ${mobileMenuOpen ? "opacity-0" : ""}`}
               ></span>
               <span
-                className={`block w-6 h-0.5 bg-current transition-all duration-200 ${mobileMenuOpen ? "-rotate-225 -translate-y-2" : ""}`}
+                className={`block w-6 h-0.5 bg-current transition-all duration-200 ${mobileMenuOpen ? "-rotate-[225deg] -translate-y-2" : ""}`}
               ></span>
             </button>
 
