@@ -282,7 +282,7 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
         </div>
 
         {/* Mobile Auth Section */}
-        <div className="border-t border-white/10 mt-auto mb-14 pt-6 px-4 pb-8 bg-[#0f1115]/95">
+        <div className="border-t border-white/10 mt-auto mb-30 pt-6 px-4 pb-8 bg-[#0f1115]/95">
           {isAuthenticated && user ? (
             <>
               <NavLink
