@@ -12,7 +12,7 @@ import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./components/Login";
-import Register from "./components/Register";
+import Register from "./components/Register/Register";
 import Dashboard from "./components/Dashboard";
 import About from "./components/About";
 import Contact from "./components/Contact/Contact";
