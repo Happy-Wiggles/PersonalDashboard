@@ -29,7 +29,8 @@ const authLimiter = rateLimit({
 const contactLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 2, // limit each IP to 2 requests per windowMs
-  message: "Zu viele Login/Register-Versuche. Bitte später versuchen.",
+  message:
+    "Zu viele Kontakt-Versuche, das macht man nicht! Bitte versuche es später nochmal.",
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -86,7 +87,7 @@ if (process.env.NODE_ENV !== "production") {
 // Global 404 handler
 app.use((req, res) => {
   console.log(`Not found request: ${req.method} ${req.url}`);
-  res.status(404).send(`Express could not found the path: ${req.url}`);
+  res.status(404).send(`Express could not find the path: ${req.url}`);
 });
 
 // Test prisma DB connection
@@ -108,5 +109,5 @@ function startUptimeCounter() {
   }, 1000);
 }
 
-// Important for Vercel
+// Important for Vercel (because the backend is being launched serverless/function-only)
 export default app;
