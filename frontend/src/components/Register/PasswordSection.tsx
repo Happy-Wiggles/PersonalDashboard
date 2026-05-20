@@ -3,54 +3,43 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-interface FormData {
-  username: string;
-  name: string;
-  surname: string;
-  email: string;
-  password: string;
-}
-
 interface PasswordSectionProps {
-  formData: FormData;
-  handleChange: (field: keyof FormData, value: string) => void;
+  incPassword: string;
+  onChange: (value: string) => void;
+  isCurrentPasswordField?: boolean;
 }
 
 const PasswordSection = ({
-  formData,
-  handleChange: handleChange,
+  incPassword,
+  onChange,
+  isCurrentPasswordField = false,
 }: PasswordSectionProps) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-
   const { loading } = useSelector((state: RootState) => state.auth);
 
-  const [touched, setTouched] = useState<
-    Partial<Record<keyof FormData, boolean>>
-  >({});
+  const [touched, setTouched] = useState<boolean>(false);
 
-  const requirements = getPasswordRequirements(formData.password);
-  const isPasswordValid = validatePassword(formData.password);
+  const requirements = getPasswordRequirements(incPassword);
+  const isPasswordValid = validatePassword(incPassword);
 
-  const handleChangeTouched = (field: keyof FormData, value: string) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    handleChange("password", value);
+  const handleChange = (value: string) => {
+    setTouched(true);
+    onChange(value); // propagate value
   };
 
   return (
     <div>
-      {/* Password input with show/hide toggle */}
       <input
-        type={showPassword ? "text" : "password"} // type changes on showPassword
-        placeholder="Passwort"
-        value={formData.password}
-        className={`w-full p-3 pr-10 rounded-xl bg-gray-900/50 text-gray-200 border-2 border-gray-600 focus:border-cyan-400 transition-all outline-none ${
+        type={showPassword ? "text" : "password"}
+        placeholder={isCurrentPasswordField ? "••••••••" : "Neues Passwort"}
+        value={incPassword}
+        className={`w-full p-3 pr-10 rounded-lg bg-gray-900/50 text-gray-200 border border-gray-600 focus:border-cyan-400 transition-all outline-none ${
           loading ? "opacity-50 cursor-not-allowed" : ""
-        } ${touched.password && !isPasswordValid ? "border-red-500/50" : ""}`}
-        onChange={(e) => handleChangeTouched("password", e.target.value)}
+        } ${touched && !isPasswordValid && !isCurrentPasswordField ? "border-red-500/50" : ""}`}
+        onChange={(e) => handleChange(e.target.value)}
         required
         disabled={loading}
       />
-      {/* Password hide/show Button */}
       <button
         type="button"
         onClick={() => setShowPassword(!showPassword)}
@@ -62,11 +51,13 @@ const PasswordSection = ({
           <EyeIcon className="h-5 w-5" />
         )}
       </button>
-      {/* Password Requirements Checklist */}
-      {touched.password && (
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-2 px-1">
-          {requirements.map((req) => (
+
+      {/* Show requirements only on new-password fields */}
+      {touched && !isCurrentPasswordField && (
+        <div className="grid grid-cols-[repeat(2,max-content)] gap-x-6 gap-y-1 mt-2 px-1">
+          {requirements.map((req, idx) => (
             <div
+              key={idx}
               className={`flex items-center gap-1.5 text-[10px] transition-colors ${
                 req.met ? "text-green-400" : "text-gray-500"
               }`}

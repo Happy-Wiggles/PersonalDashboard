@@ -107,7 +107,7 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl">
+    <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl">
       <p className="text-2xl font-semibold uppercase tracking-wide bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent pb-8">
         Schreibe mir gern eine Nachricht!
       </p>

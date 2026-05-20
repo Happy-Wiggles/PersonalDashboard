@@ -191,9 +191,9 @@ const Register = ({ setTitle }: RegisterProps) => {
               {/* Password input with show/hide toggle */}
               <div className="relative">
                 <PasswordSection
-                  formData={formData}
-                  handleChange={handleChange}
-                ></PasswordSection>
+                  incPassword={formData.password}
+                  onChange={(val) => handleChange("password", val)}
+                />
               </div>
 
               <div className="flex flex-col gap-3 pt-2">

@@ -16,7 +16,7 @@ const Contact = ({ setTitle }: ContactProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-[70%]">
         {/* Impressum / Kontakt-Info */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl h-full">
+          <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl h-full">
             <h2 className="text-2xl font-black uppercase tracking-widest text-cyan-400 mb-8 titles-pulse">
               Impressum
             </h2>
@@ -61,7 +61,7 @@ const Contact = ({ setTitle }: ContactProps) => {
               </div>
             </div>
 
-            {/* Decorative and informative text */}
+            {/* Info text */}
             <div className="mt-12 p-4 bg-cyan-500/5 rounded-2xl border border-cyan-500/10">
               <p className="text-xs text-cyan-400/60 italic leading-relaxed">
                 Ich freue mich über Anfragen zu spannenden Projekten, fachlichem
