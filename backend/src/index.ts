@@ -20,7 +20,7 @@ const PORT = Number.parseInt(process.env.PORT || "3000");
 // --- Rate Limiting ---
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 8, // limit each IP to 5 requests per windowMs
+  max: 15, // limit each IP to 15 requests per windowMs
   message: "Zu viele Login/Register-Versuche. Bitte später versuchen.",
   standardHeaders: true,
   legacyHeaders: false,
