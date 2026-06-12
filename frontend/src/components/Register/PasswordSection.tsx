@@ -30,6 +30,7 @@ const PasswordSection = ({
   return (
     <div>
       <input
+        name="password"
         type={showPassword ? "text" : "password"}
         placeholder={isCurrentPasswordField ? "••••••••" : "Neues Passwort"}
         value={incPassword}

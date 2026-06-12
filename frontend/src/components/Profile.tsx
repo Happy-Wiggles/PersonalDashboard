@@ -54,7 +54,7 @@ const Profile = ({ setTitle }: DashboardProps) => {
 
   const handlePasswordSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    // dispatch(changePasswordAsync(...)) => also compare old hash of the current pw and new hash within that func
+    // dispatch(changePasswordAsync()) => also compare old hash of the current pw and new hash within that func
     console.log("Passwort wird geändert:", passwordForm.newPassword);
     setPasswordForm({ currentPassword: "", newPassword: "" });
   };

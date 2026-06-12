@@ -141,6 +141,7 @@ const Register = ({ setTitle }: RegisterProps) => {
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <input
+                name="username"
                 type="text"
                 placeholder="Benutzername"
                 value={formData.username}
@@ -152,6 +153,7 @@ const Register = ({ setTitle }: RegisterProps) => {
 
               <div className="flex gap-2">
                 <input
+                  name="name"
                   type="text"
                   placeholder="Vorname"
                   value={formData.name}
@@ -161,6 +163,7 @@ const Register = ({ setTitle }: RegisterProps) => {
                   disabled={loading}
                 />
                 <input
+                  name="surname"
                   type="text"
                   placeholder="Nachname"
                   value={formData.surname}
@@ -173,6 +176,7 @@ const Register = ({ setTitle }: RegisterProps) => {
 
               <div className="relative">
                 <input
+                  name="email"
                   type="email"
                   placeholder="E-Mail"
                   value={formData.email}
