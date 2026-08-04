@@ -84,6 +84,7 @@ class APIClient {
           } catch (refreshError) {
             // Clear token and send user to login page if refresh doesnt work
             this.clearToken();
+
             window.location.href = "/login";
             return Promise.reject(refreshError);
           }
@@ -102,6 +103,7 @@ class APIClient {
 
   clearToken() {
     this.token = null;
+    localStorage.removeItem("authUser");
     localStorage.removeItem("authToken");
   }
 
