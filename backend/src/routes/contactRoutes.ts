@@ -36,6 +36,7 @@ export const createContactRouter = () => {
         <h3 style="color: #0891b2;">Neue Portfolio-Anfrage</h3>
         <p><strong>Von:</strong> ${name} ${surname} (${username || "Gast"})</p>
         <p><strong>E-Mail:</strong> ${email}</p>
+        <p><strong>LinkedIn:</strong> ${linkedInProfile} </p>
         ${tel ? `<p><strong>Tel:</strong> ${tel}</p>` : ""}
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
         <p><strong>Nachricht:</strong></p>
