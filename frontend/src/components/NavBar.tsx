@@ -121,7 +121,6 @@ const NavBar = ({ pageTitle }: NavBarProps) => {
     return isForbiddenPage;
   };
 
-  // TODO: Add cool shiny effect on opening
   const openMobileMenu = () => {
     setMobileMenuOpen(true);
   };
