@@ -108,6 +108,11 @@ const ContactForm = () => {
 
   return (
     <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="absolute inset-0 bg-gray-800/40 backdrop-blur-[1px] rounded-2xl z-10 flex items-center justify-center select-none">
+        <div className="bg-cyan-500/10 border border-cyan-500/40 text-amber-cyan px-4 py-2 rounded-xl text-lg font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(245,158,11,0.1)] animate-pulse">
+          Feature in Arbeit...
+        </div>
+      </div>
       <p className="text-2xl font-semibold uppercase tracking-wide bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent pb-8">
         Schreibe mir gern eine Nachricht!
       </p>
@@ -192,10 +197,11 @@ const ContactForm = () => {
           )}
         </div>
 
+        {/* TODO: Remove "true" from disabled check after I found new host for email sending */}
         <button
           type="submit"
           disabled={
-            !isEmailValid || !isTelValid || formData.message.length <= 0
+            !isEmailValid || !isTelValid || formData.message.length <= 0 || true
           }
           className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-cyan-900/40 transition-all active:scale-95 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed cursor-pointer"
         >
