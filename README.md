@@ -246,12 +246,6 @@ npm start
 
 ---
 
-## Known Issues
-
-- Keine aktuellen bekannten Probleme
-
----
-
 ## Lizenz
 
 Dieses Projekt wird zu Lernzwecken verwendet und steht unter der MIT Lizenz.
@@ -260,7 +254,7 @@ Dieses Projekt wird zu Lernzwecken verwendet und steht unter der MIT Lizenz.
 
 ## Entwickler
 
-Ich war alleiniger Entwickler und erstellte das Projekt als Teil der Alfatraining React Weiterbildung innerhalb von ca. 1 Woche (Stand 09.04.2026).
+Ich bin alleiniger Entwickler
 
 ---
 
