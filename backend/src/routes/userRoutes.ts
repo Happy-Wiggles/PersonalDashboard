@@ -2,6 +2,7 @@ import express from "express";
 import type { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
 import { authorizeAdmin } from "../middlewares/authMiddleware.js";
+import { Prisma } from "@prisma/client";
 
 // Type extension for requests with authentication data
 interface AuthenticatedRequest extends Request {
@@ -80,46 +81,60 @@ export const createUserRouter = () => {
 
   // UPDATE: Updates a user's username, name and surname by ID
   router.put("/:id", async (req: AuthenticatedRequest, res: Response) => {
+    const targetId = Number(req.params.id);
+    if (isNaN(targetId)) {
+      return res.status(400).json({ error: "Invalid user ID format." });
+    }
+
     const { id } = req.params as { id: string };
     const { username, name, surname } = req.body;
+    const { userId, role: userRole } = getAuthUser(req);
+
+    // Check if user is updating their own profile or is admin
+    if (userId !== targetId && userRole !== "admin") {
+      return res.status(403).json({
+        error: "You are not allowed to edit this users data.",
+      });
+    }
+
+    if (!username || !name || !surname) {
+      return res
+        .status(400)
+        .json({ error: "Username, name und surname sind erforderlich" });
+    }
 
     try {
-      const { userId, role: userRole } = getAuthUser(req);
-
-      // Check if user is updating their own profile or is admin
-      if (userId !== parseInt(id) && userRole !== "admin") {
-        return res.status(403).json({
-          error: "You are not allowed to edit this users data.",
-        });
-      }
-
-      if (!username || !name || !surname) {
-        return res
-          .status(400)
-          .json({ error: "Username, name und surname sind erforderlich" });
-      }
-
-      const result = await prisma.user.update({
-        data: {
-          username: username,
-          name: name,
-          surname: surname,
-        },
-        where: {
-          id: Number(id),
+      const updatedUser = await prisma.user.update({
+        where: { id: Number(id) },
+        data: { username, name, surname },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          surname: true,
+          email: true,
+          role: true,
         },
       });
 
-      if (!result) {
+      if (!updatedUser) {
         return res
           .status(404)
           .json({ error: "User not found or no changes made." });
       }
 
-      res.status(200).json(result);
+      res.status(200).json(updatedUser);
     } catch (error: any) {
       if (error.message?.includes("UNIQUE constraint failed")) {
         return res.status(409).json({ error: "Username already exists." });
+      }
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return res.status(404).json({ error: "User not found." });
+        }
+        if (error.code === "P2002") {
+          return res.status(409).json({ error: "Username already taken." });
+        }
       }
       res.status(500).json({ error: "Update failed." });
     }
@@ -146,7 +161,7 @@ export const createUserRouter = () => {
       });
 
       if (!result) {
-        return res.status(404).json({ error: "User not found." });
+        return res.status(500).json({ error: "User not found." });
       }
 
       const { username, surname, name } = result;
@@ -155,6 +170,14 @@ export const createUserRouter = () => {
         message: `User "${username}", alias "${name}", "${surname}" with ID ${id} has been deleted.`,
       });
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return res.status(404).json({ error: "User not found." });
+        }
+        if (error.code === "P2002") {
+          return res.status(409).json({ error: "Username already exists." });
+        }
+      }
       res.status(500).json({ error: "Delete failed." });
     }
   });
