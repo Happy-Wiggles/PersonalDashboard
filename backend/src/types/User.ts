@@ -7,4 +7,8 @@ export interface User {
   password: string;
   role: "user" | "admin";
   createdAt?: string;
+  updatedAt?: string;
+  verificationToken?: string;
+  verificationTokenExpires?: string;
+  isVerified: boolean;
 }

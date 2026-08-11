@@ -2,7 +2,9 @@ import express from "express";
 import type { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
 
 const SALT_ROUNDS = 10;
 const JWT_Secret = process.env.JWT_SECRET!;
@@ -20,6 +22,17 @@ interface JwtPayload {
   role: string;
   email: string;
 }
+
+// Generates hashed verification token
+const generateVerificationToken = () => {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+  return { rawToken, hashedToken, expiresAt };
+};
 
 export const createAuthRouter = () => {
   const router = express.Router();
@@ -48,8 +61,26 @@ export const createAuthRouter = () => {
           .json({ error: "Username or Email already exists." });
       }
 
-      // Hash password
+      if (
+        typeof username !== "string" ||
+        typeof email !== "string" ||
+        typeof password !== "string"
+      ) {
+        return res.status(400).json({ error: "Ungültige Eingabedaten." });
+      }
+
+      if (password.length < 8 || password.length > 72) {
+        return res
+          .status(400)
+          .json({
+            error: "Das Passwort muss zwischen 8 und 72 Zeichen lang sein.",
+          });
+      }
+
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+      // Generate token
+      const { rawToken, hashedToken, expiresAt } = generateVerificationToken();
 
       // Create the user
       const newUser = await prisma.user.create({
@@ -60,24 +91,20 @@ export const createAuthRouter = () => {
           name,
           surname,
           role: "user", // Default role
+          isVerified: false,
+          verificationToken: hashedToken,
+          verificationTokenExpires: expiresAt,
         },
       });
 
-      // Generate Token
-      const token = jwt.sign(
-        {
-          userId: newUser.id,
-          role: newUser.role,
-          email: newUser.email,
-        },
-        JWT_Secret,
-        { expiresIn: "15min" },
-      );
+      const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${rawToken}&userId=${newUser.id}`;
+      // TODO: Actually send E-Mail with verificationUrl
+      // await sendVerificationEmail(newUser.email, verificationUrl);
 
       // Response (with partial user data)
       res.status(201).json({
-        message: "Registration successful.",
-        token: token,
+        message:
+          "Registration successful. Please check your email to verify your account.",
         user: {
           id: newUser.id,
           username: newUser.username,
@@ -86,11 +113,115 @@ export const createAuthRouter = () => {
         },
       });
     } catch (error: any) {
-      if (error.message?.includes("UNIQUE constraint failed")) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
         return res
           .status(409)
           .json({ error: "Username or Email already exists." });
       }
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+
+  // --- VERIFY EMAIL ROUTE ---
+  router.post("/verify-email", async (req: Request, res: Response) => {
+    const { token, userId } = req.body;
+
+    if (!token || !userId) {
+      return res.status(400).json({ error: "Token and userId are required." });
+    }
+
+    try {
+      const hashedIncomingToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+      const user = await prisma.user.findUnique({
+        where: { id: Number(userId) },
+      });
+
+      if (!user) {
+        return res.status(400).json({ error: "Invalid request." });
+      }
+
+      if (user.isVerified) {
+        return res.status(200).json({ message: "Email is already verified." });
+      }
+
+      const isTokenValid =
+        user.verificationToken &&
+        crypto.timingSafeEqual(
+          Buffer.from(user.verificationToken),
+          Buffer.from(hashedIncomingToken),
+        );
+
+      const isNotExpired = user.verificationTokenExpires
+        ? new Date(user.verificationTokenExpires) > new Date()
+        : false;
+
+      if (!isTokenValid || !isNotExpired) {
+        return res.status(400).json({
+          error: "Verification link is invalid or has expired.",
+        });
+      }
+
+      // Verify User and delete tokens
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isVerified: true,
+          verificationToken: null,
+          verificationTokenExpires: null,
+        },
+      });
+
+      res
+        .status(200)
+        .json({ message: "Email successfully verified. You can now log in." });
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+
+  // --- RESEND VERIFICATION ROUTE ---
+  router.post("/resend-verification", async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required." });
+    }
+
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+
+      if (!user || user.isVerified) {
+        return res.status(200).json({
+          message:
+            "If the email exists and is unverified, a new link has been sent.",
+        });
+      }
+
+      const { rawToken, hashedToken, expiresAt } = generateVerificationToken();
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          verificationToken: hashedToken,
+          verificationTokenExpires: expiresAt,
+        },
+      });
+
+      const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${rawToken}&userId=${user.id}`;
+      // await sendVerificationEmail(user.email, verificationUrl);
+
+      res.status(200).json({
+        message:
+          "If the email exists and is unverified, a new link has been sent.",
+      });
+    } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
   });
@@ -118,11 +249,20 @@ export const createAuthRouter = () => {
         return res.status(401).json({ error: "Invalid credentials." });
       }
 
+      // Check if user is verified
+      // TODO: Uncomment once email verification is set up
+      // if (!user.isVerified) {
+      //   return res.status(403).json({
+      //     error: "Please verify your email address before logging in.",
+      //     isUnverified: true, // Could later be used for the frontend to lead the user to a resend button
+      //   });
+      // }
+
       // Generate JWT access token (Short-Time: 15min)
       const accessToken = jwt.sign(
         { userId: user.id, role: user.role, email: user.email },
         JWT_Secret,
-        { expiresIn: "15min" },
+        { expiresIn: "15m" },
       );
 
       // Generate JWT refresh token (Long-Time: 7 days)
@@ -168,6 +308,23 @@ export const createAuthRouter = () => {
       // Verify the token using the JwtPayload interface
       const decoded = jwt.verify(refreshToken, REFRESH_Secret) as JwtPayload;
 
+      // Check if user does exist in the system and is verified
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+      });
+
+      // TODO: Add  || !user.isVerified as soon as email verification is set up
+      if (!user) {
+        res.clearCookie("refreshToken", {
+          httpOnly: true,
+          sameSite: "strict",
+          secure: process.env.NODE_ENV === "production",
+        });
+        return res
+          .status(403)
+          .json({ error: "User unauthorized or unverified." });
+      }
+
       // Generate a new access token
       const accessToken = jwt.sign(
         { userId: decoded.userId, role: decoded.role, email: decoded.email },
@@ -178,7 +335,11 @@ export const createAuthRouter = () => {
       res.json({ token: accessToken });
     } catch (error) {
       // If the refresh token is expired or not valid
-      res.clearCookie("refreshToken", { httpOnly: true, sameSite: "strict" });
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+      });
       res
         .status(403)
         .json({ error: "Invalid refresh token. Please login again." });
@@ -187,7 +348,11 @@ export const createAuthRouter = () => {
 
   // --- LOGOUT ROUTE ---
   router.post("/logout", (req: Request, res: Response) => {
-    res.clearCookie("refreshToken", { httpOnly: true, sameSite: "strict" });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
     res.json({ message: "Logged out successfully." });
   });
 

@@ -15,8 +15,14 @@ model User {
   email      String?      @unique
   password   String
   createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
   role       String       @default("user")
   todo_lists TodoList[]
+
+  // Email verification
+  isVerified               Boolean   @default(false)
+  verificationToken        String?
+  verificationTokenExpires DateTime?
 
   @@map("users") // Connects "User" with the table "users"
 }

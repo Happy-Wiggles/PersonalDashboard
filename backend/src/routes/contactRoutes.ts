@@ -4,19 +4,33 @@ import nodemailer from "nodemailer";
 export const createContactRouter = () => {
   const router = Router();
 
+  // Configure mail transporter
+  // TODO: Find new host - free trial of sendgrid has ended
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: Number(process.env.SMTP_PORT) === 465, // true for Port 465 (SSL), false for 587 (STARTTLS)
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
   router.post("/", async (req, res) => {
-    let { username, name, surname, email, tel, message, linkedInProfile } =
+    const { username, name, surname, email, tel, message, linkedInProfile } =
       req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Nachricht ist leer" });
     }
 
+    if (!email) {
+      return res.status(400).json({ error: "E-Mail ist erforderlich" });
+    }
+
     // Remove trailing and leading spaces and allow only 2 \n
     const cleanedMessage = message.trim().replace(/(\r?\n){3,}/g, "\n\n");
 
-    // Configure mail transporter
-    // TODO: Find new host - free trial of sendgrid has ended
     const transporter = nodemailer.createTransport({
       host: "smtp.sendgrid.net",
       port: 587,
@@ -50,7 +64,7 @@ export const createContactRouter = () => {
           border-radius: 5px; 
           border: 1px solid #ddd;
           color: #333;
-        ">${cleanedMessage}</pre>
+        ">${escapeHtml(cleanedMessage)}</pre>
       </div>
     `,
     };
@@ -67,3 +81,13 @@ export const createContactRouter = () => {
 
   return router;
 };
+
+// Replace some specific chars against HTML-injection attacks
+function escapeHtml(str: string = ""): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
