@@ -74,8 +74,8 @@ app.use(`/todos`, authenticateToken, todoRouter);
 app.use(`/api/todos`, authenticateToken, todoRouter);
 
 // Use route file contactRoutes.ts at "/contact"
-app.use(`/contact`, authenticateToken, contactLimiter, contactRouter);
-app.use(`/api/contact`, authenticateToken, contactLimiter, contactRouter);
+app.use(`/contact`, contactLimiter, contactRouter);
+app.use(`/api/contact`, contactLimiter, contactRouter);
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {

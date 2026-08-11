@@ -16,6 +16,7 @@ export const createContactRouter = () => {
     const cleanedMessage = message.trim().replace(/(\r?\n){3,}/g, "\n\n");
 
     // Configure mail transporter
+    // TODO: Find new host - free trial of sendgrid has ended
     const transporter = nodemailer.createTransport({
       host: "smtp.sendgrid.net",
       port: 587,
