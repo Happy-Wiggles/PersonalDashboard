@@ -3,6 +3,7 @@ import { useAppSelector } from "../../store/hooks";
 import { useEffect } from "react";
 import { apiClient } from "../../services/BackendApiService";
 import type { ContactRequest } from "../../services/BackendApiService";
+import "./ContactForm.css";
 
 interface FormData {
   id: string;
@@ -29,6 +30,11 @@ const ContactForm = () => {
     Partial<Record<keyof FormData, boolean>>
   >({});
 
+  const [isSuccessfullMessage, setIsSuccessfullMessage] = useState(false);
+  const [contactFormTitle, setContactFormTitle] = useState(
+    "Schreibe mir gern eine Nachricht!",
+  );
+
   const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
@@ -48,11 +54,29 @@ const ContactForm = () => {
     handleFormDataInit();
   }, [user]);
 
-  const isEmailValid = validateEmail(formData.email);
-  const isTelValid = validateTel(formData.tel);
+  const [isEmailValid, setIsEmailValid] = useState(true); // validateEmail(formData.email)
+  const [isTelValid, setIsTelValid] = useState(true); // validateTel(formData.tel)
 
   const isFieldEmpty = (fieldText: string) => {
     return fieldText.trim() === "";
+  };
+
+  const resetFormData = () => {
+    // Reset contact form aside from the user data
+    setFormData((prev) => ({
+      ...prev,
+      message: "",
+      linkedInProfile: "",
+      tel: "",
+    }));
+
+    setContactFormTitle("Schreibe mir gern eine Nachricht!");
+
+    setIsEmailValid(validateEmail(formData.email));
+    setIsTelValid(validateTel(formData.tel));
+    setTouched({ name: false, surname: false, email: false, tel: false });
+
+    setIsSuccessfullMessage(false);
   };
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -62,12 +86,24 @@ const ContactForm = () => {
       setTouched((prev) => ({ ...prev, [field]: false }));
     } else {
       setTouched((prev) => ({ ...prev, [field]: true }));
+
+      // Validate user input while typing
+      setIsEmailValid(validateEmail(formData.email));
+      setIsTelValid(validateTel(formData.tel));
     }
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isEmailValid || !isTelValid) return;
+
+    if (
+      !isEmailValid ||
+      !isTelValid ||
+      formData.email === "" ||
+      formData.message === "" ||
+      formData.tel === ""
+    )
+      return;
 
     try {
       const payload: ContactRequest = {
@@ -84,13 +120,27 @@ const ContactForm = () => {
 
       const result = await apiClient.sendContactMessage(payload);
       console.log(result);
-      if (result.message.includes("200")) {
-        alert("Nachricht wurde erfolgreich gesendet!");
-      }
 
-      // Reset contact form aside from the user data
-      setFormData((prev) => ({ ...prev, message: "", linkedInProfile: "" }));
+      if (
+        result.message.includes("E-Mail erfolgreich gesendet") ||
+        result.successfull
+      ) {
+        setIsSuccessfullMessage(true);
+
+        setTimeout(() => {
+          setContactFormTitle("Nachricht wurde erfolgreich gesendet!");
+        }, 700);
+
+        // Wait for shiny glow animation to complete before resetting
+        setTimeout(() => {
+          resetFormData();
+        }, 2800);
+      } else {
+        setIsSuccessfullMessage(false);
+        resetFormData();
+      }
     } catch (err) {
+      setIsSuccessfullMessage(false);
       alert(`Fehler beim Senden der Nachricht: \n${err}`);
     }
   };
@@ -107,9 +157,11 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="bg-gray-800/70 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl">
+    <div
+      className={`bg-gray-800/70 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl ${isSuccessfullMessage ? "animate-glow-flow" : ""}`}
+    >
       <p className="text-2xl font-semibold uppercase tracking-wide bg-linear-to-r from-cyan-400 via-cyan-200 to-blue-500 animate-gradient-logo bg-clip-text text-transparent pb-8">
-        Schreibe mir gern eine Nachricht!
+        {contactFormTitle}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">

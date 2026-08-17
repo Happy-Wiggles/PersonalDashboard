@@ -215,11 +215,13 @@ class APIClient {
   }
 
   // Contact Message
-  async sendContactMessage(data: ContactRequest): Promise<{ message: string }> {
-    const response = await this.client.post<{ message: string }>(
-      "/contact",
-      data,
-    );
+  async sendContactMessage(
+    data: ContactRequest,
+  ): Promise<{ message: string; successfull: boolean }> {
+    const response = await this.client.post<{
+      message: string;
+      successfull: boolean;
+    }>("/contact", data);
     return response.data;
   }
 }
