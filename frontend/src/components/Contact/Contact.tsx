@@ -46,7 +46,7 @@ const Contact = ({ setTitle }: ContactProps) => {
                     E-Mail
                   </p>
                   <p className="text-lg font-medium text-cyan-400 group-hover:text-cyan-300">
-                    {CONTACT_MAIL}
+                    meineEmail@gmail.com {/* {CONTACT_MAIL} */}
                   </p>
                 </div>
 
