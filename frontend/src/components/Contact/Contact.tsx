@@ -6,8 +6,8 @@ interface ContactProps {
 }
 
 const Contact = ({ setTitle }: ContactProps) => {
-  // const CONTACT_MAIL =
-  //   import.meta.env.VITE_CONTACT_MAIL || "meineMail@gmail.com";
+  const CONTACT_MAIL =
+    import.meta.env.VITE_CONTACT_MAIL || "meineMail@gmail.com";
 
   useEffect(() => setTitle("Kontakt"), [setTitle]);
 
@@ -46,7 +46,7 @@ const Contact = ({ setTitle }: ContactProps) => {
                     E-Mail
                   </p>
                   <p className="text-lg font-medium text-cyan-400 group-hover:text-cyan-300">
-                    meineMail@gmail.com {/* {CONTACT_MAIL} */}
+                    {CONTACT_MAIL}
                   </p>
                 </div>
 
