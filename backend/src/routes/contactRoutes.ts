@@ -76,12 +76,18 @@ export const createContactRouter = () => {
     try {
       const info = await transporter.sendMail(mailOptions);
 
-      res.status(200).json({ message: "E-Mail erfolgreich gesendet", info });
+      res
+        .status(200)
+        .json({ message: "E-Mail erfolgreich gesendet", successfull: true });
     } catch (error) {
       console.error("Mail Error:", error);
       res
         .status(500)
-        .json({ error: "Fehler beim E-Mail Versand!\n", details: error });
+        .json({
+          error: "Fehler beim E-Mail Versand!\n",
+          successfull: false,
+          details: error,
+        });
     }
   });
 
