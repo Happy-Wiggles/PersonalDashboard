@@ -1,20 +1,19 @@
 import { Router } from "express";
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export const createContactRouter = () => {
   const router = Router();
 
-  // Configure mail transporter
-  // TODO: Find new host - free trial of sendgrid has ended
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: Number(process.env.SMTP_PORT) === 465, // true for Port 465 (SSL), false for 587 (STARTTLS)
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  const resend = new Resend(process.env.SMTP_API_KEY);
+
+  const senderMail = process.env.SENDER_MAIL as string;
+  const contactMail = process.env.CONTACT_MAIL as string;
+  const mailHost = process.env.SMTP_API_HOST as string;
+
+  if (!senderMail || !contactMail) {
+    throw new Error("Missing mail env vars");
+  }
 
   router.post("/", async (req, res) => {
     const { username, name, surname, email, tel, message, linkedInProfile } =
@@ -31,22 +30,12 @@ export const createContactRouter = () => {
     // Remove trailing and leading spaces and allow only 2 \n
     const cleanedMessage = message.trim().replace(/(\r?\n){3,}/g, "\n\n");
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.sendgrid.net",
-      port: 587,
-      auth: {
-        user: "apikey",
-        pass: process.env.SENDGRID_API_KEY,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.SENDER_MAIL,
-      to: process.env.CONTACT_MAIL,
-      replyTo: email,
-      subject: `Portfolio Kontakt: ${name} ${surname}`,
-      text: `Nachricht von: ${name} ${surname} (${email})\n\n${message}`,
-      html: `
+    try {
+      resend.emails.send({
+        from: senderMail,
+        to: contactMail,
+        subject: `Portfolio Kontakt: ${name} ${surname}`,
+        html: `
       <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px;">
         <h3 style="color: #0891b2;">Neue Portfolio-Anfrage</h3>
         <p><strong>Von:</strong> ${name} ${surname} (${username || "Gast"})</p>
@@ -67,15 +56,16 @@ export const createContactRouter = () => {
         ">${escapeHtml(cleanedMessage)}</pre>
       </div>
     `,
-    };
+      });
 
-    try {
-      const info = await transporter.sendMail(mailOptions);
-
-      res.status(200).json({ message: "E-Mail erfolgreich gesendet", info });
+      res
+        .status(200)
+        .json({ message: "E-Mail erfolgreich gesendet mit ", mailHost });
     } catch (error) {
       console.error("Mail Error:", error);
-      res.status(500).json({ error: "Fehler beim E-Mail Versand" });
+      res
+        .status(500)
+        .json({ error: "Fehler beim E-Mail Versand mit ", mailHost });
     }
   });
 
