@@ -86,6 +86,9 @@ const Dashboard = ({ setTitle }: DashboardProps) => {
               </button>
             )}
           </div>
+          <div className="lg:col-span-7 xl:col-span-8 bg-gray-800/50 p-4 rounded-xl border border-gray-600/70 shadow-cyan-300/60">
+            <p>Testing new github name and branch...</p>
+          </div>
         </div>
       </div>
     </div>
